@@ -5,7 +5,8 @@ CREATE TABLE ubs (
 );
 
 CREATE TABLE usuario (
-    cpf CHAR(11) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    cpf CHAR(11) UNIQUE NOT NULL,
     nome VARCHAR(100),
     telefone VARCHAR(20),
     data_nascimento DATE
@@ -116,3 +117,4 @@ CREATE TABLE especialidade_medico (
     cpf CHAR(11) REFERENCES medico(cpf),
     PRIMARY KEY (tipo, cpf)
 );
+
