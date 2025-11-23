@@ -117,4 +117,3 @@ CREATE TABLE especialidade_medico (
     cpf CHAR(11) REFERENCES medico(cpf),
     PRIMARY KEY (tipo, cpf)
 );
-
