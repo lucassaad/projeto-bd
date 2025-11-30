@@ -1,4 +1,9 @@
+alembic
 fastapi
-uvicorn
-SQLAlchemy
+psycopg2-binary
+pydantic 
+pydantic[email]
+pydantic-settings
 ruff
+SQLAlchemy
+uvicorn
