@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, Date, String
+from sqlalchemy import Date, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.appointment import Appointment
@@ -9,13 +9,13 @@ from app.models.registry import table_registry
 
 @table_registry.mapped_as_dataclass
 class Exam:
-    __tablename__ = "exam"
+    __tablename__ = 'exam'
 
     id: Mapped[int] = mapped_column(
         init=False, primary_key=True, autoincrement=True
     )
-    appointment_id: Mapped[int] = mapped_column(ForeignKey("appointment.id"))
+    appointment_id: Mapped[int] = mapped_column(ForeignKey('appointment.id'))
     exam_date: Mapped[date] = mapped_column(Date())
     exam_type: Mapped[str] = mapped_column(String(200))
 
-    appointment: Mapped[Appointment] = relationship("Appointment")
+    appointment: Mapped[Appointment] = relationship('Appointment')

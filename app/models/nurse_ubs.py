@@ -13,9 +13,7 @@ class Nurse_Ubs:
     id: Mapped[int] = mapped_column(
         init=False, primary_key=True, autoincrement=True
     )
-    nurse_cpf: Mapped[str] = mapped_column(
-        String(11), ForeignKey('nurse.cpf')
-    )
+    nurse_cpf: Mapped[str] = mapped_column(String(11), ForeignKey('nurse.cpf'))
     ubs_cnes: Mapped[str] = mapped_column(String(7), ForeignKey('ubs.cnes'))
 
     nurse: Mapped[Nurse] = relationship('Nurse')
