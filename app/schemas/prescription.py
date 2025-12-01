@@ -3,24 +3,28 @@ from datetime import datetime
 from pydantic import BaseModel   
 
 
-class AppointmentBase(BaseModel):
+class PrescriptionBase(BaseModel):
     doctor_cpf: str
     patient_cpf: str
     ubs_cnes: str
     date: datetime
+    description: str
+    date : datetime
+    
 
-
-class AppointmentIn(AppointmentBase):
+class Patient_ubsIn(PrescriptionBase):
     pass
 
 
-class AppointmentOut(AppointmentBase):
+class PrescriptionOut(PrescriptionBase):
     message : str
 
 
-class AppointmentUpdate(AppointmentBase):
+class PrescriptionUpdate(PrescriptionBase):
     doctor_cpf: str | None = None
     patient_cpf: str | None = None
     ubs_cnes: str | None = None
     date: datetime | None = None
+    description: str | None = None
+    date : datetime | None = None
     
