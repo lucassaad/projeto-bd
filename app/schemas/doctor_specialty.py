@@ -15,5 +15,6 @@ class DoctorSpecialtyIn(DoctorSpecialtyBase):
 
 
 class DoctorSpecialtyOut(DoctorSpecialtyBase):
+    id: int | None = None  
     pass
     

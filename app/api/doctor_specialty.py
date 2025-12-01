@@ -32,7 +32,7 @@ def post_doctor_specialty(doc_in: DoctorSpecialtyIn, session: db_session):
 
 @router.get('/specialty', response_model=DoctorSpecialtyOut, status_code=HTTPStatus.OK)
 def get_doctor_by_specialty(code: int, db_session: db_session):
-    user = select_user(code, db_session)
+    user = select_doctor_by_specialty(code, db_session)
 
     if user is None:
         raise HTTPException(status_code=404, detail='No doctor found for this specialty')
@@ -65,7 +65,7 @@ def put_user(id: int, user_update: DoctorSpecialtyIn, db_session: db_session):
 
 @router.delete('/{id}', response_model=DoctorSpecialtyOut, status_code=HTTPStatus.OK)
 def delete_user(id: int, db_session: db_session):
-    user = delete_user_db(id, db_session)
+    user = delete_doctor_specialty_db(id, db_session)
     if user is None:
         raise HTTPException(status_code=404, detail='User not found')
 
