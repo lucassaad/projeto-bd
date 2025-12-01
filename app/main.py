@@ -11,9 +11,10 @@ from app.api import doctor_ubs
 from app.api import ubs
 from app.api import specialty
 from app.api import vaccine
+from app.api import exam
+from app.api import prescription
 from app.api import nurse_specialty
 from app.api import nurse_ubs
-
 
 app = FastAPI()
 
@@ -24,6 +25,8 @@ app.include_router(doctor_ubs.router)
 app.include_router(ubs.router)
 app.include_router(specialty.router)
 app.include_router(vaccine.router)
+app.include_router(exam.router)
+app.include_router(prescription.router)
 app.include_router(nurse_specialty.router)
 app.include_router(nurse_ubs.router)
 
@@ -32,7 +35,6 @@ templates = Jinja2Templates(directory="app/templates")
 
 # Static files (css, js, imagens)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
 
 # Página HTML principal
 @app.get("/", response_class=HTMLResponse)
