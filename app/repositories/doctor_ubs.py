@@ -18,7 +18,7 @@ def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
             text("""
                 SELECT *
                 FROM "doctor_ubs"
-                WHERE doctor_cpf = :cpf AND cnes_ubs = :cnes
+                WHERE doctor_cpf = :cpf AND ubs_cnes = :cnes
             """),
             {
                 "cpf": doctor_ubs_in.doctor_cpf,
@@ -36,7 +36,7 @@ def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
     try:
         session.execute(
             text("""
-                INSERT INTO doctor_ubs (doctor_cpf, cnes_ubs)
+                INSERT INTO doctor_ubs (doctor_cpf, ubs_cnes)
                 VALUES (:doctor_cpf, :cnes_ubs)
             """),
             doctor_ubs_in.model_dump()
@@ -59,7 +59,7 @@ def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
             text("""
                 SELECT *
                 FROM doctor_ubs
-                WHERE doctor_cpf = :cpf AND cnes_ubs = :cnes
+                WHERE doctor_cpf = :cpf AND ubs_cnes = :cnes
             """),
             {
                 "cpf": doctor_ubs_in.doctor_cpf,
@@ -98,7 +98,7 @@ def select_doctor_by_ubs(cnes: str, session: Session):
         session.execute(
             text("""
             SELECT * FROM "doctor_ubs"
-            WHERE cnes_ubs = :cnes
+            WHERE ubs_cnes = :cnes
         """), 
             {'cnes': cnes},
         )
@@ -148,7 +148,7 @@ def update_doctor_ubs(doctor_ubs_info: Doctor_ubsIn, id: int, session: Session):
         text("""
             UPDATE "doctor_ubs" SET
                 doctor_cpf = :doctor_cpf,
-                cnes_ubs = :cnes_ubs
+                ubs_cnes = :cnes_ubs
             WHERE id = :id
         """),
         {**doctor_ubs_info.model_dump(), 'id': id},
