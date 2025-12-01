@@ -16,7 +16,7 @@ class Doctor_Ubs:
     doctor_cpf: Mapped[str] = mapped_column(
         String(11), ForeignKey('doctor.cpf')
     )
-    ubs_cnes: Mapped[str] = mapped_column(String(7), ForeignKey('ubs.cnes'))
+    cnes_ubs: Mapped[str] = mapped_column(String(7), ForeignKey('ubs.cnes'))
 
     doctor: Mapped[Doctor] = relationship('Doctor')
     ubs: Mapped[Ubs] = relationship('Ubs')

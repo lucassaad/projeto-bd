@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar — Sistema UBS</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+    <nav class="nav">
+        <a href="/" class="nav-link">Início</a>
+        <a href="/login" class="nav-link">Entrar</a>
+        <img src="/static/images/ubs.png" class="nav-logo">
+    </nav>
+</header>
+
+<main class="center-box">
+    <h1>Criar Conta</h1>
+
+    <form class="form-card">
+
+        <label>Nome completo:</label>
+        <input type="text" name="nome" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" required>
+
+        <label>Telefone:</label>
+        <input type="tel" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
+
+        <label>CPF:</label>
+        <input type="text" name="cpf" placeholder="000.000.000-00" required>
+
+        <label>Data de nascimento:</label>
+        <input type="date" name="data_nascimento" required>
+
+        <label>Senha:</label>
+        <input type="password" name="senha" required>
+
+        <button type="submit" class="btn">Cadastrar</button>
+    </form>
+</main>
+
+</body>
+</html>

@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from app.api import user
 from app.api import appointment
@@ -12,7 +15,38 @@ app.include_router(appointment.router)
 app.include_router(doctor_specialty.router)
 app.include_router(doctor_ubs.router)
 
+# Templates
+templates = Jinja2Templates(directory="app/templates")
 
-@app.get('/')
+# Static files (css, js, imagens)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+# Página HTML principal
+@app.get("/", response_class=HTMLResponse)
+def homepage(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "title": "Sistema UBS"}
+    )
+
+# Endpoint de API (opcional)
+@app.get("/api")
 def root():
-    return {'Project': 'Projeto de Banco de Dados'}
+    return {"Project": "Projeto de Banco de Dados"}
+
+# Login page
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request}
+    )
+
+# Register page
+@app.get("/register", response_class=HTMLResponse)
+def register_page(request: Request):
+    return templates.TemplateResponse(
+        "register.html",
+        {"request": request}
+    )
