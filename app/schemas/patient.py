@@ -1,10 +1,9 @@
-from datetime import date
-
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class PatientBase(BaseModel):
-    name: str
-    birth_date: date
+    cpf : str = Field(
+        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    )
 
 
 class PatientIn(PatientBase):
@@ -15,5 +14,4 @@ class PatientOut(PatientBase):
     pass
 
 class PatientUpdate(PatientBase):
-    name: str | None = None
-    birth_date: date | None = None
+    cpf : str | None = None

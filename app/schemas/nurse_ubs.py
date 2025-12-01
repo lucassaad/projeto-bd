@@ -1,8 +1,10 @@
-from pydantic import BaseModel   
+from pydantic import BaseModel, Field 
 
 
 class Nurse_ubsBase(BaseModel):
-    nurse_cpf: str
+    nurse_cpf: str = Field(
+        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    )
     ubs_cnes: str
     
 

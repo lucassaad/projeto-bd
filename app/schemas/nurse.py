@@ -1,17 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class NurseBase(BaseModel):
-    name: str
+    cpf : str = Field(
+        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    )
     coren: str
 
 
-class Doctor(NurseBase):
+class NurseIn(NurseBase):
     pass
 
-class DoctorOut(NurseBase):
+class NurseOut(NurseBase):
     pass
 
-class DoctorUpdate(NurseBase):
+class NurseUpdate(NurseBase):
     name: str | None = None
     coren: str | None = None

@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.user import Nurse_specialtyIn, Nurse_specialtyOut, Nurse_specialtyUpdate
+from app.schemas.nurse_specialty import Nurse_specialtyIn, Nurse_specialtyOut, Nurse_specialtyUpdate
 
 def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session):
 
@@ -38,7 +38,7 @@ def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session)
             SELECT * FROM nurse_specialty
             WHERE nurse_cpf = :nurse_cpf ANDspecialty = specialty
         """),
-            {'nurse_cpf': nurse_specialty.nurse_cpf, specialty': nurse_specialty},
+            {'nurse_cpf': nurse_specialty.nurse_cpf, 'specialty': nurse_specialty},
         )
         .mapping()
         .first()
@@ -46,25 +46,7 @@ def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session)
 
     return db_nurse_specialty
 
-def select_nurse_specialty(nurse_cpf: str,specialty: str, session: Session):
-    nurse_specialty = (
-        session.execute(
-            text("""
-            SELECT * FROM nurse_specialty
-            WHERE nurse_cpf = :nurse_cpf ANDspecialty = specialty
-        """),
-            {'nurse_cpf': nurse_cpf, specialty':specialty},
-        )
-        .mappings()
-        .first()
-    )
-
-    if nurse_specialty is None:
-        return None
-    
-    return dict(nurse_specialty)
-
-def selectspecialty_by_nurse(nurse_cpf: str, session: Session):
+def select_specialty_by_nurse(nurse_cpf: str, session: Session):
     nurse_specialty = (
         session.execute(
             text("""
@@ -82,14 +64,14 @@ def selectspecialty_by_nurse(nurse_cpf: str, session: Session):
     
     return dict(nurse_specialty)
 
-def selectspecialty_by_namespecialty: str, session: Session):
+def select_specialty_by_name(specialty: str, session: Session):
     nurse_specialty = (
         session.execute(
             text("""
             SELECT * FROM nurse_specialty
             WHEREspecialty = specialty
         """),
-            {specialty':specialty},
+            {'specialty':specialty},
         )
         .mappings()
         .first()
@@ -118,7 +100,7 @@ def select_nurse_specialty_by_id(id: int, session: Session):
     
     return dict(nurse_specialty)
 
-def select_all_nurse_specialities(session: Session):
+def select_all_nurse_specialties(session: Session):
     nurse_specialities = (
         session.execute(
             text("""
@@ -131,7 +113,7 @@ def select_all_nurse_specialities(session: Session):
 
     return nurse_specialities
 
-def update_nurse_specialty(nurse_specialty_info: nurse_specialtyUpdate, id: int, session: Session):
+def update_nurse_specialty(nurse_specialty_info: Nurse_specialtyUpdate, id: int, session: Session):
     nurse_specialty = (
         session.execute(
             text("""
@@ -147,11 +129,11 @@ def update_nurse_specialty(nurse_specialty_info: nurse_specialtyUpdate, id: int,
     if nurse_specialty is None:
         return None
 
-    session.exeute(
+    session.execute(
         text("""
             UPDATE nurse_specialty SET
-            nurse_cpf = COALESCE(:nurse_cpf, nurse_cpf),
-        specialty = COALESCE(specialty,specialty)
+            nurse_cpf = :nurse_cpf,
+            specialty = :specialty
             WHERE id = :id
     """),
     {**nurse_specialty_info.model_dump(), 'id': id},

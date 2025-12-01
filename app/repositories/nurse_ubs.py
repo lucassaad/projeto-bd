@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.user import Nurse_ubsIn, Nurse_ubsOut, Nurse_ubsUpdate
+from app.schemas.nurse_ubs import Nurse_ubsIn, Nurse_ubsOut, Nurse_ubsUpdate
 
 def create_nurse_ubs(nurse_ubs: Nurse_ubsIn, session: Session):
 
@@ -46,27 +46,7 @@ def create_nurse_ubs(nurse_ubs: Nurse_ubsIn, session: Session):
 
     return db_nurse_ubs
 
-def select_nurse_ubs(nurse_cpf: str, ubs_cnes: str, session: Session):
-    nurse_ubs = (
-        session.execute(
-            text("""
-            SELECT * FROM nurse_ubs
-            WHERE nurse_cpf = :nurse_cpf AND ubs_cnes = :ubs_cnes
-        """),
-            {'nurse_cpf': nurse_cpf, 'ubs_cnes': ubs_cnes},
-        )
-        .mappings()
-        .first()
-    )
-
-    return nurse_ubs
-
-    if nurse_ubs is None:
-        return None
-    
-    return dict(nurse_ubs)
-
-def select_nurse_ubs(id: int, session: Session):
+def select_nurse_ubs_by_id(id: int, session: Session):
     nurse_ubs = (
         session.execute(
             text("""
@@ -78,10 +58,45 @@ def select_nurse_ubs(id: int, session: Session):
         .all()
     )
 
-    if user is None:
+    if nurse_ubs is None:
         return None
     
     return dict(nurse_ubs)
+
+def select_nurse_ubs_by_nurse(nurse_cpf: str, session: Session):
+    nurse_ubs = (
+        session.execute(
+            text("""
+            SELECT * FROM nurse_ubs
+            WHERE nurse_cpf = :nurse_cpf
+        """),
+            {'nurse_cpf': nurse_cpf},
+        )
+        .mappings()
+        .first()
+    )
+
+    if nurse_ubs is None:
+        return None
+    
+    return dict(nurse_ubs)
+
+def select_nurse_ubs_by_ubs(ubs_cnes: str, session: Session):
+    result = (
+        session.execute(
+            text("""
+            SELECT * FROM nurse_ubs
+            WHERE ubs_cnes = :ubs_cnes
+        """),
+            {'ubs_cnes': ubs_cnes},
+        )
+        .mappings()
+        .first()
+    )
+
+    nurses_ubs = [dict(row) for row in result]
+
+    return nurses_ubs
 
 def select_all_nurse_ubs(session: Session):
     result = (
@@ -94,9 +109,9 @@ def select_all_nurse_ubs(session: Session):
         .fetchall()
     )
 
-    nurse_ubs = [dict(row) for row in result]
+    nurses_ubs = [dict(row) for row in result]
 
-    return nurse_ubs
+    return nurses_ubs
 
 def update_nurse_ubs(nurse_ubs_info: Nurse_ubsUpdate, id: int, session: Session):
 
