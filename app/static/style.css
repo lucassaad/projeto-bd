@@ -1,0 +1,114 @@
+body {
+    background-color: #f5f5f5;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+    font-weight: 600;
+}
+
+.btn {
+    padding: 15px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+/* NAVBAR FIXA */
+.nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    left: 0;
+    background: #40A6E9;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* ⬅ move links para a direita */
+
+    padding-right: 40px;
+    z-index: 1; /* abaixo da logo */
+}
+
+/* LINKS DA NAV */
+.nav-link {
+    color: white;
+    font-size: 1.2rem;
+    text-decoration: none;
+    margin-right: 30%;
+    font-weight: 600;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+/* LOGO ACIMA DE TUDO */
+.nav-logo {
+    position: fixed;
+    width: 187px;
+    height: 101px;
+    left: 88px;
+    top: -8px;
+    z-index: 9; /* 🔥 garante que fica por cima da navbar */
+}
+
+.container {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Animação leve de entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+.center-box {
+    margin-top: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-card input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.btn {
+    background: #40A6E9;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+
+#map {
+    width: 100%;
+    height: 500px; /* altura obrigatória! */
+    margin-top: 120px; /* para não ficar atrás da navbar */
+    z-index: 0;
+}

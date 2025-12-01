@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema UBS — Mapa</title>
+
+    <!-- estilo do site -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        /* garante que o conteúdo não fique escondido atrás da navbar fixa */
+        body {
+            padding-top: 100px; /* ajuste se sua navbar tiver outra altura */
+        }
+
+        /* altura do mapa (ocupa a janela menos a navbar) */
+        #map {
+            width: 100%;
+            height: calc(100vh - 140px); /* ocupa quase toda a tela */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        /* pequena caixa lateral de controle (lista de UBS) */
+        .places-list {
+            max-width: 1200px;
+            margin: 0 auto 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .place-btn {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .place-btn:hover { background: #f0f8ff; }
+    </style>
+</head>
+<body>
+    <header>
+        
+        <nav class="nav">
+            <a href="/register" class="nav-link">Cadastre-se</a>
+            <a href="/login" class="nav-link">Entrar</a>
+            <img src="/static/images/ubs.png" class="nav-logo">
+        </nav>
+    </header>
+
+    <main>
+        <div class="places-list" id="placesList">
+            <!-- botões serão inseridos via JS para centralizar no mapa -->
+        </div>
+
+        <div id="map"></div>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-o9N1j7kK3bE2q0kT3u1g8E1n5x7YfY2gq0r2u3v4k5o="
+      crossorigin=""
+    ></script>
+
+    <script>
+        // inicializa mapa centrado em Brasília (exemplo)
+        const map = L.map('map').setView([-15.7801, -47.9292], 12);
+
+        // camada base OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // lista de UBSs de exemplo (nomes e coordenadas)
+        const ubsList = [
+            {
+                name: "UBS Centro",
+                coords: [-15.793889, -47.882778],
+                address: "SQN 102, Brasília - DF",
+                hours: "08:00 - 17:00"
+            },
+            {
+                name: "UBS Sudoeste",
+                coords: [-15.8080, -47.9200],
+                address: "Rua Sudoeste, 45, Brasília - DF",
+                hours: "07:30 - 16:30"
+            },
+            {
+                name: "UBS Norte",
+                coords: [-15.7470, -47.8650],
+                address: "Av. Norte, 120, Brasília - DF",
+                hours: "08:00 - 18:00"
+            },
+            {
+                name: "UBS Sul",
+                coords: [-15.8155, -47.9005],
+                address: "Rua Sul, 250, Brasília - DF",
+                hours: "08:00 - 17:00"
+            },
+            {
+                name: "UBS Vila Nova",
+                coords: [-15.7712, -47.9101],
+                address: "R. Nova, 77, Brasília - DF",
+                hours: "08:00 - 16:00"
+            },
+            {
+                name: "UBS Parque",
+                coords: [-15.7921, -47.9456],
+                address: "Av. Parque, 10, Brasília - DF",
+                hours: "07:00 - 15:00"
+            },
+            {
+                name: "UBS Lago Norte",
+                coords: [-15.7400, -47.8500],
+                address: "Lago Norte, Qd. 04, Brasília - DF",
+                hours: "08:00 - 17:00"
+            }
+        ];
+
+        // adiciona marcadores ao mapa e cria botões na lista
+        const placesListEl = document.getElementById('placesList');
+
+        ubsList.forEach((ubs, idx) => {
+            // marcador com popup
+            const marker = L.marker(ubs.coords).addTo(map);
+            marker.bindPopup(`<b>${ubs.name}</b><br>${ubs.address}<br><small>Horário: ${ubs.hours}</small>`);
+
+            // botão para centralizar no marcador
+            const btn = document.createElement('button');
+            btn.className = 'place-btn';
+            btn.innerText = ubs.name;
+            btn.onclick = () => {
+                map.setView(ubs.coords, 15, { animate: true });
+                marker.openPopup();
+            };
+            placesListEl.appendChild(btn);
+        });
+
+        // opcional: abrir popup da UBS Centro ao carregar
+        // encontrar marcador mais próximo ou o primeiro e abrir popup
+        // (no nosso caso, abrimos o primeiro)
+        // map.eachLayer(...) não é necessário aqui, então só abrir uma popup genérica:
+        // abrir popup aproximado no centro
+        // L.popup().setLatLng([-15.793889, -47.882778]).setContent("<b>UBS Centro</b>").openOn(map);
+    </script>
+</body>
+</html>
