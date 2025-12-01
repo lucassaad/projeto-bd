@@ -4,7 +4,7 @@ CREATE TABLE ubs (
     endereco VARCHAR(200)
 );
 
-CREATE TABLE usuario (
+CREATE TABLE user (
     id SERIAL PRIMARY KEY,
     cpf CHAR(11) UNIQUE NOT NULL,
     nome VARCHAR(100),
@@ -12,21 +12,21 @@ CREATE TABLE usuario (
     data_nascimento DATE
 );
 
-CREATE TABLE medico (
+CREATE TABLE doctor (
     cpf CHAR(11) PRIMARY KEY REFERENCES usuario(cpf),
     crm CHAR(6) UNIQUE NOT NULL
 );
 
-CREATE TABLE enfermeiro (
+CREATE TABLE nurse (
     cpf CHAR(11) PRIMARY KEY REFERENCES usuario(cpf),
     coren CHAR(8) UNIQUE NOT NULL
 );
 
-CREATE TABLE paciente (
+CREATE TABLE patient (
     cpf CHAR(11) PRIMARY KEY REFERENCES usuario(cpf)
 );
 
-CREATE TABLE consulta (
+CREATE TABLE appointment (
     data_hora TIMESTAMP,
     cpf_medico CHAR(11) REFERENCES medico(cpf),
     cpf_paciente CHAR(11) REFERENCES paciente(cpf),
@@ -34,7 +34,7 @@ CREATE TABLE consulta (
     PRIMARY KEY (data_hora, cpf_medico, cpf_paciente, cnes_ubs)
 );
 
-CREATE TABLE exame (
+CREATE TABLE exam (
     data_agendamento TIMESTAMP,
     tipo INT,
     data_hora TIMESTAMP,
@@ -46,7 +46,7 @@ CREATE TABLE exame (
         REFERENCES consulta (data_hora, cpf_medico, cpf_paciente, cnes_ubs)
 );
 
-CREATE TABLE prescricao (
+CREATE TABLE prescription (
     data DATE,
     descricao TEXT,
     data_hora TIMESTAMP,
@@ -58,11 +58,11 @@ CREATE TABLE prescricao (
         REFERENCES consulta (data_hora, cpf_medico, cpf_paciente, cnes_ubs)
 );
 
-CREATE TABLE especialidade (
+CREATE TABLE specialty (
     tipo INT PRIMARY KEY
 );
 
-CREATE TABLE vacina (
+CREATE TABLE vaccine (
     nome_vacina VARCHAR(100),
     fabricante VARCHAR(100),
     descricao TEXT,
@@ -71,31 +71,31 @@ CREATE TABLE vacina (
     PRIMARY KEY (nome_vacina, cpf_paciente)
 );
 
-CREATE TABLE medicamento (
+CREATE TABLE medication (
     codigo_anvisa INT PRIMARY KEY,
     nome VARCHAR(100),
     descricao TEXT
 );
 
-CREATE TABLE medico_usuario (
+CREATE TABLE doctor_user (
     cpf_medico CHAR(11) REFERENCES medico(cpf),
     cnes_ubs CHAR(7) REFERENCES ubs(cnes),
     PRIMARY KEY (cpf_medico, cnes_ubs)
 );
 
-CREATE TABLE enfermeiro_ubs (
+CREATE TABLE nurse_ubs (
     cpf_enfermeiro CHAR(11) REFERENCES enfermeiro(cpf),
     cnes_ubs CHAR(7) REFERENCES ubs(cnes),
     PRIMARY KEY (cpf_enfermeiro, cnes_ubs)
 );
 
-CREATE TABLE paciente_ubs (
+CREATE TABLE patient_ubs (
     cpf_paciente CHAR(11) REFERENCES paciente(cpf),
     cnes_ubs CHAR(7) REFERENCES ubs(cnes),
     PRIMARY KEY (cpf_paciente, cnes_ubs)
 );
 
-CREATE TABLE medicamento_prescricao (
+CREATE TABLE medication_prescription (
     codigo_anvisa INT REFERENCES medicamento(codigo_anvisa),
     data_hora TIMESTAMP,
     cpf_medico CHAR(11),
@@ -106,13 +106,13 @@ CREATE TABLE medicamento_prescricao (
         REFERENCES prescricao (data_hora, cpf_medico, cpf_paciente, cnes_ubs)
 );
 
-CREATE TABLE enfermeiro_especialidade (
+CREATE TABLE nurse_specialty (
     cpf CHAR(11) REFERENCES enfermeiro(cpf),
     tipo INT REFERENCES especialidade(tipo),
     PRIMARY KEY (cpf, tipo)
 );
 
-CREATE TABLE especialidade_medico (
+CREATE TABLE doctor_specialty (
     tipo INT REFERENCES especialidade(tipo),
     cpf CHAR(11) REFERENCES medico(cpf),
     PRIMARY KEY (tipo, cpf)
