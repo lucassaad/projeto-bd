@@ -18,16 +18,40 @@
 <main class="center-box">
     <h1>Entrar</h1>
 
-    <form class="form-card">
-        <label>Email:</label>
-        <input type="email" placeholder="Digite seu email" required>
+    <form id="login-form" class="form-card">
+        <label>CPF:</label>
+        <input type="text" name="cpf" placeholder="Digite seu CPF" required>
 
         <label>Senha:</label>
-        <input type="password" placeholder="Digite sua senha" required>
+        <input type="password" name="password" placeholder="Digite sua senha" required>
 
         <button type="submit" class="btn">Entrar</button>
     </form>
 </main>
+<script>
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const cpf = e.target.cpf.value;
+    const password = e.target.password.value;
+
+    const url = `/user/auth?cpf=${encodeURIComponent(cpf)}&password=${encodeURIComponent(password)}`;
+
+    const response = await fetch(url, {
+        method: "POST"
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(result));
+        alert("Login realizado com sucesso!");
+        window.location.href = "/";
+    } else {
+        alert(result.detail || "CPF ou senha incorretos");
+    }
+});
+</script>
 
 </body>
 </html>

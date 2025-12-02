@@ -38,6 +38,15 @@ def get_user(cpf: str, db_session: db_session):
 
     return user
 
+@router.post('/auth', response_model=UserOut, status_code=HTTPStatus.OK)
+def autenticate_user(cpf: str, password: str, db_session: db_session):
+    user = select_user(cpf, db_session)
+
+    if user is None or user['password'] != password:
+        raise HTTPException(status_code=401, detail='Invalid credentials')
+
+    return user
+
 
 @router.get('/all', response_model=list[UserOut], status_code=HTTPStatus.OK)
 def get_all_users(db_session: db_session):
