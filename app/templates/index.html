@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Sistema UBS — Mapa</title>
 
-    <!-- estilo do site -->
     <link rel="stylesheet" href="/static/style.css">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -59,13 +58,10 @@
             <a href="/login" class="nav-link" id="nav-login">Entrar</a>
             <img src="/static/images/ubs.png" class="nav-logo">
         </nav>
-
-
     </header>
 
     <main>
-
-        <div class="btn-consultas-wrapper">
+        <div class="btn-consultas-wrapper" id="btnConsultasWrapper" style="display: none;">
             <a href="/appointments" class="btn">Gerenciar Consultas</a>
         </div>
 
@@ -149,25 +145,31 @@
             placesListEl.appendChild(btn);
         });
 
-                function updateNavbar() {
+        // FUNÇÃO ATUALIZADA PARA MOSTRAR/ESCONDER ELEMENTOS
+        function updateNavbar() {
             const user = JSON.parse(localStorage.getItem("user"));
 
             const navLogin = document.getElementById("nav-login");
             const navRegister = document.getElementById("nav-register");
             const navbar = document.getElementById("navbar");
+            const btnConsultasWrapper = document.getElementById("btnConsultasWrapper");
 
             if (user) {
-                // esconder login/cadastro
+                // Usuário logado
+                
+                // 1. Esconder login/cadastro
                 if (navLogin) navLogin.style.display = "none";
                 if (navRegister) navRegister.style.display = "none";
 
-                // nome
+                // 2. MOSTRAR o botão Gerenciar Consultas
+                if (btnConsultasWrapper) btnConsultasWrapper.style.display = "block"; 
+
+                // 3. Adicionar nome e botão Sair na navbar
                 const nameEl = document.createElement("span");
                 nameEl.className = "nav-link";
                 nameEl.innerText = user.name || user.email || user.cpf;
                 nameEl.style.fontWeight = "bold";
 
-                // botão sair
                 const logoutEl = document.createElement("a");
                 logoutEl.className = "nav-link";
                 logoutEl.href = "#";
@@ -181,6 +183,10 @@
 
                 navbar.appendChild(nameEl);
                 navbar.appendChild(logoutEl);
+            } else {
+                 // Usuário deslogado
+                // 1. Ocultar o botão Gerenciar Consultas (opcional, já está 'none' no HTML)
+                if (btnConsultasWrapper) btnConsultasWrapper.style.display = "none";
             }
         }
 
