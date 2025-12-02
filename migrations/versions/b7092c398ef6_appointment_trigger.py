@@ -24,26 +24,22 @@ def upgrade() -> None:
     CREATE OR REPLACE FUNCTION check_appointment_conflict()
     RETURNS TRIGGER AS $$
     DECLARE
-        medico_nome TEXT;
+        doctor_name TEXT;
     BEGIN
-        SELECT nome INTO medico_nome
-        FROM medico
-        WHERE cpf = NEW.cpf_medico;
+        SELECT u.name INTO doctor_name
+        FROM doctor d
+        JOIN "user" u ON d.cpf = u.cpf
+        WHERE d.cpf = NEW.doctor_cpf;
 
         IF EXISTS (
             SELECT 1
             FROM appointment
-            WHERE cpf_medico = NEW.cpf_medico
-              AND data_hora = NEW.data_hora
-              AND NOT (
-                  cpf_paciente = COALESCE(OLD.cpf_paciente, '')
-                  AND cnes_ubs = COALESCE(OLD.cnes_ubs, '')
-                  AND data_hora = COALESCE(OLD.data_hora, '1900-01-01')
-                  AND cpf_medico = COALESCE(OLD.cpf_medico, '')
-              )
+            WHERE doctor_cpf = NEW.doctor_cpf
+              AND appointment_datetime = NEW.appointment_datetime
+              AND id <> COALESCE(NEW.id, 0)
         ) THEN
             RAISE EXCEPTION 'Conflict: Doctor % already has an appointment scheduled at %.',
-                medico_nome, NEW.data_hora;
+                doctor_name, NEW.appointment_datetime;
         END IF;
 
         RETURN NEW;
@@ -63,3 +59,4 @@ def downgrade() -> None:
     """Downgrade schema."""
     op.execute("DROP TRIGGER IF EXISTS trg_check_appointment_conflict ON appointment;")
     op.execute("DROP FUNCTION IF EXISTS check_appointment_conflict();")
+
