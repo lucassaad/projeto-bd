@@ -19,6 +19,6 @@ class Doctor_ubsOut(Doctor_ubsBase):
     pass
 
 
-class Doctor_ubsUpdate(Doctor_ubsBase):
+class Doctor_ubsUpdate(BaseModel):
     doctor_cpf: str | None = None
     cnes_ubs : str | None = None

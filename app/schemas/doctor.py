@@ -1,20 +1,21 @@
 from pydantic import BaseModel, Field
 
+from app.schemas.user import UserOut
+
 
 class DoctorBase(BaseModel):
-    cpf: str = Field(
-        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    crm: str = Field(
+        ..., pattern=r'^\d{10}$', description='CRM must contain 10 digits'
     )
-    crm: str
 
 
 class DoctorIn(DoctorBase):
-    pass
+    cpf: str = Field(
+        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    )
 
 class DoctorOut(DoctorBase):
-    id: int | None = None   
-    pass
+    user: UserOut
 
-class DoctorUpdate(DoctorBase):
-    name: str | None = None
+class DoctorUpdate(BaseModel):
     crm: str | None = None

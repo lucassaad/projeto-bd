@@ -22,7 +22,7 @@ class UserOut(UserBase):
     pass
 
 
-class UserUpdate(UserBase):
+class UserUpdate(BaseModel):
     password: str
     cpf: str | None = None
     name: str | None = None

@@ -9,7 +9,7 @@ from app.repositories.patient import (
     create_patient,
     select_patient_by_cpf,
     select_all_patients,
-    update_patient,
+    # update_patient,
     delete_patient
 )
 
@@ -36,16 +36,16 @@ def get_patient_by_cpf(patient_cpf: str, session: Annotated[Session, Depends(get
 def get_all_patients(session: Annotated[Session, Depends(get_session)]):
     return select_all_patients(session)
 
-@router.put('/{id}', response_model=PatientOut, status_code=HTTPStatus.OK)
-def put_patient(id: int, patient_update: PatientUpdate, session: Annotated[Session, Depends(get_session)]):
-    patient = update_patient(patient_update, id, session)
-    if patient is None:
-        raise HTTPException(status_code=404, detail='Patient not found')
-    return patient
+# @router.put('/{cpf}', response_model=PatientOut, status_code=HTTPStatus.OK)
+# def put_patient(cpf: str, patient_update: PatientUpdate, session: Annotated[Session, Depends(get_session)]):
+#     patient = update_patient(patient_update, cpf, session)
+#     if patient is None:
+#         raise HTTPException(status_code=404, detail='Patient not found')
+#     return patient
 
-@router.delete('/{id}', response_model=PatientOut, status_code=HTTPStatus.OK)
-def delete_patient_route(id: int, session: Annotated[Session, Depends(get_session)]):
-    patient = delete_patient(id, session)
+@router.delete('/cpf}', response_model=PatientOut, status_code=HTTPStatus.OK)
+def delete_patient_route(cpf: str, session: Annotated[Session, Depends(get_session)]):
+    patient = delete_patient(cpf, session)
     if patient is None:
         raise HTTPException(status_code=404, detail='Patient not found')
     return patient

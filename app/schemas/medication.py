@@ -17,7 +17,7 @@ class MedicationOut(MedicationBase):
     pass
 
 
-class MedicationUpdate(MedicationBase):
+class MedicationUpdate(BaseModel):
     anvisa_code: str | None = None
     name : str  | None = None
     description : str | None = None

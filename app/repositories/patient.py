@@ -7,13 +7,11 @@ def create_patient(patient: PatientIn, session: Session):
     existing_patient = (
         session.execute(
             text("""
-            SELECT * FROM patient
-            WHERE cpf = :cpf
-        """),
-        {'cpf': patient.cpf},
-        )
-        .mappings()
-        .first()
+                SELECT * FROM patient
+                WHERE cpf = :cpf
+            """),
+            {'cpf': patient.cpf},
+        ).mappings().first()
     )
 
     if existing_patient is not None:
@@ -22,124 +20,125 @@ def create_patient(patient: PatientIn, session: Session):
     session.execute(
         text("""
              INSERT INTO patient
-             (cpf, name, birth_date)
+             (cpf)
             VALUES
-            (:cpf, :name, :birth_date)
-    """),
-    patient.model_dump(),
+            (:cpf)
+        """),
+        patient.model_dump(),
     )
+
     session.commit()
 
-    db_patient = (
-        session.execute(
-            text("""
-            SELECT * FROM patient
-            WHERE cpf = :cpf
-        """),
-            {'cpf': patient.cpf},
-        )
-        .mappings()
-        .first()
-    )
-
-
-    return db_patient
+    return select_patient_by_cpf(patient.cpf, session)
 
 def select_patient_by_cpf(patient_cpf: str, session: Session):
-    patient = (
+    result = (
         session.execute(
             text("""
-            SELECT * FROM patient
-            WHERE cpf = :patient_cpf
+            SELECT 
+                p.cpf AS patient_cpf,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM patient p
+            JOIN "user" u ON u.cpf = p.cpf
+            WHERE p.cpf = :patient_cpf
         """),
             {'patient_cpf': patient_cpf},
-        )
-        .mappings()
-        .first()
+        ).mappings().first()
     )
-
-    if patient is None:
+    
+    if result is None:
         return None
 
-    return patient
+    return {
+            "cpf": result["patient_cpf"],
+            "user": {
+                "id": result['user_id'],
+                "cpf": result["user_cpf"],
+                "name": result["name"],
+                "phone_number": result["phone_number"],
+                "birthdate": result["birthdate"],
+                "email": result["email"]
+            }
+        }
+    
 
 def select_all_patients(session: Session):
-    patients = (
-        session.execute(
-            text("""
-            SELECT * FROM patient
-        """),
-        )
-        .mappings()
-        .all()
-    )
-
-    return patients
-
-def update_patient(patient_update: PatientUpdate, id : int, session: Session):
-    patient = (
-        session.execute(
-            text("""
-            SELECT * FROM patient
-            WHERE id = :id
-        """),
-            {'id': id},
-        )
-        .mappings()
-        .first()
-    )
-
-    if patient is None:
-        return None
-    
-    session.execute(
+    result = session.execute(
         text("""
-        UPDATE patient
-        SET cpf = :cpf
-        WHERE id = :id
-    """),
-        {**patient_update.model_dump(), 'id': id},
-    )
-    session.commit()
+            SELECT 
+                p.cpf AS patient_cpf,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM patient p
+            JOIN "user" u ON u.cpf = p.cpf
+        """)
+    ).mappings().all()
 
-    updated_patient = (
-        session.execute(
-            text("""
-            SELECT * FROM patient
-            WHERE id = :id
-        """),
-            {'id': id},
-        )
-        .mappings()
-        .first()
-    )
+    return [
+        {
+            "cpf": row["patient_cpf"],
+            "user": {
+                "id": row['user_id'],
+                "cpf": row["user_cpf"],
+                "name": row["name"],
+                "phone_number": row["phone_number"],
+                "birthdate": row["birthdate"],
+                "email": row["email"]
+            }
+        }
+        for row in result
+    ]
 
-    return updated_patient
 
-def delete_patient(id: int, session: Session):
-    patient = (
-        session.execute(
-            text("""
-            SELECT * FROM patient
-            WHERE id = :id
-        """),
-            {'id': id},
-        )
-        .mappings()
-        .first()
-    )
+# def update_patient(patient_update: PatientUpdate, cpf : str, session: Session):
+#     patient = (
+#         session.execute(
+#             text("""
+#             SELECT * FROM patient
+#             WHERE cpf = :cpf
+#         """),
+#             {'cpf': cpf},
+#         ).mappings().first()
+#     )
 
-    if patient is None:
+#     if patient is None:
+#         return None
+    
+#     session.execute(
+#         text("""
+#         UPDATE patient
+#         SET cpf = :cpf
+#         WHERE cpf = :cpf
+#     """),
+#         {**patient_update.model_dump()},
+#     )
+#     session.commit()
+
+#     return select_patient_by_cpf(patient.cpf, session)
+
+def delete_patient(cpf: str, session: Session):
+    result = select_patient_by_cpf(cpf, session)
+    
+    if result is None:
         return None
 
     session.execute(
         text("""
             DELETE FROM patient
-            WHERE id = :id
+            WHERE cpf = :cpf
         """),
-        {'id': id},
+        {'cpf': cpf},
     )
 
     session.commit()
 
-    return patient
+    return result

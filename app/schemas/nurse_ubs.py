@@ -15,7 +15,7 @@ class Nurse_ubsIn(Nurse_ubsBase):
 class Nurse_ubsOut(Nurse_ubsBase):
     message : str
 
-class Nurse_ubsUpdate(Nurse_ubsBase):
+class Nurse_ubsUpdate(BaseModel):
     nurse_cpf: str | None = None
     ubs_cnes: str | None = None
     
