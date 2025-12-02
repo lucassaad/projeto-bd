@@ -6,15 +6,15 @@ class UbsBase(BaseModel):
     name : str
     address: str
 
-class UbsIn(ubsBase):
+class UbsIn(UbsBase):
     pass
 
 
-class UbsOut(ubsBase):
+class UbsOut(UbsBase):
     message : str
 
 
-class UbsUpdate(ubsBase):
+class UbsUpdate(UbsBase):
     cnes: str | None = None
     name : str | None = None
     address: str | None = None
