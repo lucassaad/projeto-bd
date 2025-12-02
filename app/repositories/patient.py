@@ -98,8 +98,8 @@ def update_patient(patient_update: PatientUpdate, id : int, session: Session):
         SET cpf = :cpf
         WHERE id = :id
     """),
-    {**patient_update.model_dump(), 'id': id},
-)
+        {**patient_update.model_dump(), 'id': id},
+    )
     session.commit()
 
     updated_patient = (

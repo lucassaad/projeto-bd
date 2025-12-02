@@ -27,14 +27,14 @@ def post_patient_ubs(patient_ubs_in: Patient_ubsIn, session: db_session):
             status_code=HTTPStatus.CONFLICT, detail='Patient UBS association already exists')
     return patient_ubs
 
-@router.get('/cpf/', response_model=Patient_ubsOut, status_code=HTTPStatus.OK)
+@router.get('/cpf', response_model=Patient_ubsOut, status_code=HTTPStatus.OK)
 def get_patient_ubs_by_cpf(patient_cpf: str, session: db_session):
     patient_ubs = select_patient_ubs_by_cpf(patient_cpf, session)
     if patient_ubs is None:
         raise HTTPException(status_code=404, detail='Patient UBS association not found')
     return patient_ubs
 
-@router.get('/cnes/', response_model=list[Patient_ubsOut], status_code=HTTPStatus.OK)
+@router.get('/cnes', response_model=list[Patient_ubsOut], status_code=HTTPStatus.OK)
 def get_patient_ubs_by_cnes(ubs_cnes: str, session: db_session):
     patient_ubs = select_patient_ubs_by_cnes(ubs_cnes, session)
     if patient_ubs is None:

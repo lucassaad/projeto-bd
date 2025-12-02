@@ -26,14 +26,14 @@ def post_nurse(nurse_in: NurseIn, session: Annotated[Session, Depends(get_sessio
             status_code=HTTPStatus.CONFLICT, detail='Nurse with given CORen and CPF already exists')
     return nurse
 
-@router.get('/cpf/', response_model=NurseOut, status_code=HTTPStatus.OK)
+@router.get('/cpf', response_model=NurseOut, status_code=HTTPStatus.OK)
 def get_nurse_by_cpf(nurse_cpf: str, session: Annotated[Session, Depends(get_session)]):
     nurse = select_nurse_by_cpf(nurse_cpf, session)
     if nurse is None:
         raise HTTPException(status_code=404, detail='Nurse not found')
     return nurse
 
-@router.get('/coren/', response_model=NurseOut, status_code=HTTPStatus.OK)
+@router.get('/coren', response_model=NurseOut, status_code=HTTPStatus.OK)
 def get_nurse_by_coren(nurse_coren: str, session: Annotated[    Session, Depends(get_session)]):
     nurse = select_nurse_by_coren(nurse_coren, session)
     if nurse is None:
