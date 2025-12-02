@@ -44,7 +44,7 @@ def get_all_ubs(db_session: db_session):
     return select_all_ubs(db_session)
 
 
-@router.put('/{cnes}', response_model=UbsOut, status_code=HTTPStatus.OK)
+@router.put('/cnes', response_model=UbsOut, status_code=HTTPStatus.OK)
 def put_ubs(ubs_update: UbsUpdate, cnes: str, db_session: db_session):
     ubs = update_ubs(ubs_update, cnes, db_session)
     if ubs is None:
@@ -53,7 +53,7 @@ def put_ubs(ubs_update: UbsUpdate, cnes: str, db_session: db_session):
     return ubs
 
 
-@router.delete('/{cnes}', response_model=UbsOut, status_code=HTTPStatus.OK)
+@router.delete('/cnes', response_model=UbsOut, status_code=HTTPStatus.OK)
 def delete_ubs(cnes: str, db_session: db_session):
     ubs = delete_ubs_db(cnes, db_session)
     if ubs is None:

@@ -1,18 +1,30 @@
-from pydantic import BaseModel, Field
+from datetime import datetime
+
+from pydantic import BaseModel   
 
 
 class PrescriptionBase(BaseModel):
+    doctor_cpf: str
+    patient_cpf: str
+    ubs_cnes: str
+    date: datetime
     description: str
-
+    date : datetime
+    
 
 class PrescriptionIn(PrescriptionBase):
-    appointment_id: int
+    pass
 
 
 class PrescriptionOut(PrescriptionBase):
-    id: int
-    appointment_id: int
+    message : str
 
 
-class PrescriptionUpdate(PrescriptionBase):
-    pass
+class PrescriptionUpdate(BaseModel):
+    doctor_cpf: str | None = None
+    patient_cpf: str | None = None
+    ubs_cnes: str | None = None
+    date: datetime | None = None
+    description: str | None = None
+    date : datetime | None = None
+    
