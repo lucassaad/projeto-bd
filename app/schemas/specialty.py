@@ -11,5 +11,5 @@ class SpecialtyIn(SpecialtyBase):
 class SpecialtyOut(SpecialtyBase):
     code: int
 
-class SpecialtyUpdate(SpecialtyBase):
+class SpecialtyUpdate(BaseModel):
     pass

@@ -55,7 +55,7 @@ def put_user(id: int, user_update: UserUpdate, db_session: db_session):
 
 @router.delete('/{id}', response_model=UserOut, status_code=HTTPStatus.OK)
 def delete_user(id: int, db_session: db_session):
-    user = delete_user(id, db_session)
+    user = delete_user_db(id, db_session)
     if user is None:
         raise HTTPException(status_code=404, detail='User not found')
     return user

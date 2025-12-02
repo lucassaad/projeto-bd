@@ -19,7 +19,7 @@ class ExamOut(examBase):
     pass
 
 
-class ExamUpdate(examBase):
+class ExamUpdate(BaseModel):
     type: str | None = None
     date_appointment: datetime | None = None
     doctor_cpf: str | None = None

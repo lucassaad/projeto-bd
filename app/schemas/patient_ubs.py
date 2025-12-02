@@ -14,7 +14,7 @@ class Patient_ubsIn(Patient_ubsBase):
 class Patient_ubsOut(Patient_ubsBase):
     message : str
 
-class Patient_ubsUpdate(Patient_ubsBase):
+class Patient_ubsUpdate(BaseModel):
     patient_cpf: str | None = None
     ubs_cnes: str | None = None
     

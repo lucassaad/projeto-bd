@@ -11,7 +11,7 @@ from app.repositories.nurse import (
     select_nurse_by_coren,
     select_all_nurses,
     update_nurse,
-    delete_nurse
+    delete_nurse_db
 )
 
 from app.schemas.nurse import NurseIn, NurseOut, NurseUpdate
@@ -44,16 +44,16 @@ def get_nurse_by_coren(nurse_coren: str, session: Annotated[    Session, Depends
 def get_all_nurses(session: Annotated[Session, Depends(get_session)]):
     return select_all_nurses(session)
 
-@router.put('/{id}', response_model=NurseOut, status_code=HTTPStatus.OK)
-def put_nurse(id: int, nurse_update: NurseUpdate, session: Annotated[Session, Depends(get_session)]):
-    nurse = update_nurse(nurse_update, id, session)
+@router.put('/cpf', response_model=NurseOut, status_code=HTTPStatus.OK)
+def put_nurse(cpf: str, nurse_update: NurseUpdate, session: Annotated[Session, Depends(get_session)]):
+    nurse = update_nurse(nurse_update, cpf, session)
     if nurse is None:
         raise HTTPException(status_code=404, detail='Nurse not found')
     return nurse
 
-@router.delete('{id}', response_model=NurseOut, status_code=HTTPStatus.OK)
-def delete_nurse(id: int, session: Annotated[Session, Depends(get_session)]):
-    nurse = delete_nurse(id, session)
+@router.delete('/cpf', response_model=NurseOut, status_code=HTTPStatus.OK)
+def delete_nurse(cpf: str, session: Annotated[Session, Depends(get_session)]):
+    nurse = delete_nurse_db(cpf, session)
     if nurse is None:
         raise HTTPException(status_code=404, detail='Nurse not found')
     return nurse

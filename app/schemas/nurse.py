@@ -1,19 +1,21 @@
 from pydantic import BaseModel, Field
 
+from app.schemas.user import UserOut
+
 
 class NurseBase(BaseModel):
-    cpf : str = Field(
-        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    coren : str = Field(
+        ..., pattern=r'^\d{9}$', description='Coren must contain 9 digits'
     )
-    coren: str
 
 
 class NurseIn(NurseBase):
-    pass
+    cpf : str = Field(
+        ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
+    )
 
 class NurseOut(NurseBase):
-    pass
+    user: UserOut
 
-class NurseUpdate(NurseBase):
-    name: str | None = None
+class NurseUpdate(BaseModel):
     coren: str | None = None

@@ -20,7 +20,7 @@ class PrescriptionOut(PrescriptionBase):
     message : str
 
 
-class PrescriptionUpdate(PrescriptionBase):
+class PrescriptionUpdate(BaseModel):
     doctor_cpf: str | None = None
     patient_cpf: str | None = None
     ubs_cnes: str | None = None

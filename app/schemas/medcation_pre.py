@@ -19,7 +19,7 @@ class Medication_preOut(Medication_preBase):
     pass
 
 
-class Medication_preUpdate(Medication_preBase):
+class Medication_preUpdate(BaseModel):
     anvisa_code : str | None = None
     date : datetime | None = None
     patient_cpf : str | None = None

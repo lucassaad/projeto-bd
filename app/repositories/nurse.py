@@ -1,19 +1,17 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.nurse import NurseIn, NurseOut, NurseUpdate
+from app.schemas.nurse import NurseIn, NurseUpdate
 
 def create_nurse(nurse: NurseIn, session: Session):
     existing_nurse = (
         session.execute(
             text("""
-            SELECT * FROM nurse
-            WHERE coren = :coren AND cpf = :cpf
-        """),
-        {'coren': nurse.coren, 'cpf': nurse.cpf},
-        )
-        .mapping()
-        .first()
+                SELECT * FROM nurse
+                WHERE cpf = :cpf
+            """),
+            {'cpf': nurse.cpf},
+        ).mappings().first()
     )
 
     if existing_nurse is not None:
@@ -22,146 +20,153 @@ def create_nurse(nurse: NurseIn, session: Session):
     session.execute(
         text("""
              INSERT INTO nurse
-             (nurse_cpf, coren)
+             (cpf, coren)
             VALUES
-            (:nurse_cpf, :coren)
+            (:cpf, :coren)
     """),
     nurse.model_dump(),
     )
     session.commit()
 
-    db_nurse = (
-        session.execute(
-            text("""text
-            SELECT * FROM nurse
-            WHERE coren = :coren AND cpf = :cpf
-        """),
-            {'coren': nurse.coren, 'cpf': nurse.cpf},
-        )
-        .mappings()
-        .first()
-    )
-
-
-    return db_nurse
+    return select_nurse_by_cpf(nurse.cpf, session)
 
 def select_nurse_by_cpf(nurse_cpf: str, session: Session):
-    nurse = (
+    result = (
         session.execute(
             text("""
-            SELECT * FROM nurse
-            WHERE nurse_cpf = :nurse_cpf
+            SELECT 
+                n.coren as nurse_coren,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM nurse n 
+            JOIN "user" u ON u.cpf = n.cpf
+            WHERE n.cpf = :nurse_cpf
         """),
             {'nurse_cpf': nurse_cpf},
-        )
-        .mappings()
-        .first()
+        ).mappings().first()
     )
 
-    if nurse is None:
+    if result is None:
         return None
 
-    return nurse
+    return {
+            "coren": result["nurse_coren"],
+            "user": {
+                "id": result['user_id'],
+                "cpf": result["user_cpf"],
+                "name": result["name"],
+                "phone_number": result["phone_number"],
+                "birthdate": result["birthdate"],
+                "email": result["email"]
+            }
+        }
 
 def select_nurse_by_coren(coren: str, session: Session):
-    nurse = (
+    result = (
         session.execute(
-            session.execute(
-                text("""
-                SELECT * FROM nurse
-                WHERE coren = :coren
-            """),
-                {'coren': coren},
-            )
-        )
-        .mappings()
-        .first()
+            text("""
+            SELECT 
+                n.coren as nurse_coren,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM nurse n 
+            JOIN "user" u ON u.cpf = n.cpf
+            WHERE n.coren = :nurse_coren
+        """),
+            {'nurse_coren': coren},
+        ).mappings().first()
     )
 
-    if nurse is None:
+    if result is None:
         return None
     
-    return nurse
+    return {
+            "coren": result["nurse_coren"],
+            "user": {
+                "id": result['user_id'],
+                "cpf": result["user_cpf"],
+                "name": result["name"],
+                "phone_number": result["phone_number"],
+                "birthdate": result["birthdate"],
+                "email": result["email"]
+            }
+        }
 
 def select_all_nurses(session: Session):
-    nurses = (
-        session.execute(
-            text("""
-            SELECT * FROM nurse
+    result = session.execute(
+        text("""
+            SELECT 
+                n.coren as nurse_coren,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM nurse n 
+            JOIN "user" u ON u.cpf = n.cpf
         """)
-        )
-        .mappings()
-        .fetchall()
-    )
+    ).mappings().all()
+    
 
-    return nurses
+    return [
+        {
+            "coren": row["nurse_coren"],
+            "user": {
+                "id": row['user_id'],
+                "cpf": row["user_cpf"],
+                "name": row["name"],
+                "phone_number": row["phone_number"],
+                "birthdate": row["birthdate"],
+                "email": row["email"]
+            }
+        }
+        for row in result
+    ]   
 
-def update_nurse(nurse_update: NurseUpdate, id: int, session: Session):
-    nurse = (
-        session.execute(
-            text("""
-            SELECT * FROM nurse
-            WHERE id = :id
-        """),
-            {'id': id},
-        )
-        .mappings()
-        .first()
-    )
+def update_nurse(nurse_update: NurseUpdate, cpf: str, session: Session):
+    result = select_nurse_by_cpf(cpf, session)
 
-    if nurse is None:
+    if result is None:
         return None
     
     session.execute(
         text("""
             UPDATE nurse
-            SET coren = :coren,
-            cpf = :cpf
-            WHERE id = :id
+            SET 
+                coren = :coren,
+                cpf = :cpf
+            WHERE cpf = :cpf
         """),
-        {**nurse_update.model_dump(), 'id': nurse['id']},
+        {**nurse_update.model_dump(), "cpf": cpf},
     )
 
     session.commit()
 
-    updated_nurse = (
-        session.execute(
-            text("""
-            SELECT * FROM nurse
-            WHERE id = :id
-        """),
-            {'id': id},
-        )
-        .mappings()
-        .first()
-    )
+    return select_nurse_by_cpf(cpf, session)
 
-    return updated_nurse
+def delete_nurse_db(cpf: str, session: Session):
+    result = select_nurse_by_cpf(cpf, session)
 
-def delete_nurse(id: int, session: Session):
-    nurse = (
-        session.execute(
-            text("""
-            SELECT * FROM nurse
-            WHERE id = :id
-        """),
-            {'id': id},
-        )
-        .mappings()
-        .first()
-    )
-
-    if nurse is None:
+    if result is None:
         return None
 
     session.execute(
         text("""
             DELETE FROM nurse
-            WHERE id = :id
+            WHERE cpf = :cpf
         """),
-        {'id': id},
+        {'cpf': cpf},
     )
 
     session.commit()
 
-    return dict(nurse)
+    return result

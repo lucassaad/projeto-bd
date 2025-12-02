@@ -16,7 +16,7 @@ from app.repositories.nurse_ubs import (
 )
 from app.schemas.nurse_ubs import Nurse_ubsIn, Nurse_ubsOut, Nurse_ubsUpdate
 
-router = APIRouter(prefix='/user', tags=['Nurse_ubs'])
+router = APIRouter(prefix='/nurse_ubs', tags=['Nurse_ubs'])
 
 db_session = Annotated[Session, Depends(get_session)]
 

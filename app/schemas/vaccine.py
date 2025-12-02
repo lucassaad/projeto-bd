@@ -17,7 +17,7 @@ class VaccineOut(vaccineBase):
     message : str
 
 
-class VaccineUpdate(vaccineBase):
+class VaccineUpdate(BaseModel):
     anvisa_code: str | None = None
     manufacturer: str | None = None
     description: str | None = None

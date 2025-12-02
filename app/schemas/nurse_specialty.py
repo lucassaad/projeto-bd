@@ -15,7 +15,7 @@ class Nurse_specialtyIn(Nurse_specialtyBase):
 class Nurse_specialtyOut(Nurse_specialtyBase):
     message : str
 
-class Nurse_specialtyUpdate(Nurse_specialtyBase):
+class Nurse_specialtyUpdate(BaseModel):
     nurse_cpf: str | None = None
     speciality: str | None = None
     
