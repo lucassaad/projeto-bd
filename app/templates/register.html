@@ -6,41 +6,137 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <header>
+        <nav class="nav">
+            <a href="/" class="nav-link">Início</a>
+            <a href="/login" class="nav-link">Entrar</a>
+            <img src="/static/images/ubs.png" class="nav-logo">
+        </nav>
+    </header>
+    <main class="center-box">
+        <h1>Criar Conta</h1>
+        <form id="cadastroForm" class="form-card">
+            <label>Nome completo:</label>
+            <input type="text" name="nome" required>
 
-<header>
-    <nav class="nav">
-        <a href="/" class="nav-link">Início</a>
-        <a href="/login" class="nav-link">Entrar</a>
-        <img src="/static/images/ubs.png" class="nav-logo">
-    </nav>
-</header>
+            <label>Email:</label>
+            <input type="email" name="email" required>
 
-<main class="center-box">
-    <h1>Criar Conta</h1>
+            <label>Telefone:</label>
+            <input type="tel" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
 
-    <form class="form-card">
+            <label>CPF:</label>
+            <input type="text" name="cpf" placeholder="000.000.000-00" required>
 
-        <label>Nome completo:</label>
-        <input type="text" name="nome" required>
+            <label>Data de nascimento:</label>
+            <input type="date" name="data_nascimento" required>
 
-        <label>Email:</label>
-        <input type="email" name="email" required>
+            <label>Senha:</label>
+            <input type="password" name="senha" required>
 
-        <label>Telefone:</label>
-        <input type="tel" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
+            <label style="margin-top: 5px; display: block;">Tipo de usuário:</label>
+            <select name="tipo_usuario" id="tipoUsuarioSelect" required>
+                <option value="">Selecione...</option>
+                <option value="medico">Médico</option>
+                <option value="paciente">Paciente</option>
+            </select>
+            
+            <div id="campoCrm" style="display: none;">
+                <label>CRM:</label>
+                <input type="text" name="crm" id="inputCrm">
+            </div>
 
-        <label>CPF:</label>
-        <input type="text" name="cpf" placeholder="000.000.000-00" required>
+            <button style ="margin-top: 15px; display:block" type="submit" class="btn">Cadastrar</button>
+        </form>
+    </main>
+    <script>
+        const tipoUsuarioSelect = document.getElementById("tipoUsuarioSelect");
+        const campoCrm = document.getElementById("campoCrm");
+        const inputCrm = document.getElementById("inputCrm");
 
-        <label>Data de nascimento:</label>
-        <input type="date" name="data_nascimento" required>
+        // --- Lógica para Exibir/Ocultar o Campo CRM ---
+        tipoUsuarioSelect.addEventListener("change", () => {
+            if (tipoUsuarioSelect.value === "medico") {
+                campoCrm.style.display = 'block'; // Mostra o campo
+                inputCrm.required = true; // Torna o campo obrigatório
+            } else {
+                campoCrm.style.display = 'none'; // Oculta o campo
+                inputCrm.required = false; // Remove a obrigatoriedade
+                inputCrm.value = ''; // Limpa o valor (boa prática)
+            }
+        });
 
-        <label>Senha:</label>
-        <input type="password" name="senha" required>
 
-        <button type="submit" class="btn">Cadastrar</button>
-    </form>
-</main>
+        // --- Lógica de Submissão do Formulário ---
+        document.getElementById("cadastroForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const tipoUsuario = form.tipo_usuario.value;
+            
+            // 1) Criar objeto de dados básicos do usuário
+            const dados = {
+                name: form.nome.value,
+                email: form.email.value,
+                phone_number: form.telefone.value,
+                cpf: form.cpf.value,
+                birthdate: form.data_nascimento.value,
+                password: form.senha.value
+            };
+            
+            // 2) Adicionar CRM aos dados se o tipo for médico
+            if (tipoUsuario === "medico") {
+                dados.crm = form.crm.value; // Adiciona o CRM
+            }
+            
+            try {
+                // 1) Criar usuário básico
+                const userResp = await fetch("/user", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
 
+                if (!userResp.ok) {
+                    const erro = await userResp.json();
+                    alert("Erro ao cadastrar usuário: " + erro.detail);
+                    return;
+                }
+
+                // 2) Criar entidade MÈDICO ou PACIENTE
+                let rotaExtra = "";
+                let bodyExtra = { cpf: dados.cpf };
+
+                if (tipoUsuario === "medico") {
+                    rotaExtra = "/doctor";
+                    // Para o doctor, o body deve incluir o crm. 
+                    // Assumindo que o endpoint /doctor requer o crm junto com o cpf.
+                    bodyExtra.crm = dados.crm; 
+                } else if (tipoUsuario === "paciente") {
+                    rotaExtra = "/patient";
+                }
+
+                // Chamar somente se existir rota adicional
+                if (rotaExtra !== "") {
+                    const extraResp = await fetch(rotaExtra, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(bodyExtra) // Usa o bodyExtra que pode ter CRM
+                    });
+
+                    if (!extraResp.ok) {
+                        const erro = await extraResp.json();
+                        alert("Erro ao criar perfil de " + tipoUsuario + ": " + erro.detail);
+                        return;
+                    }
+                }
+
+                alert("Cadastro realizado com sucesso!");
+                window.location.href = "/login";
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao conectar ao servidor.");
+            }
+        });
+    </script>
 </body>
 </html>
