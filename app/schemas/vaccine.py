@@ -1,20 +1,26 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel   
 
 
-class VaccineBase(BaseModel):
-    patient_cpf: str = Field(..., pattern=r'^\d{11}$')
-    nurse_cpf: str = Field(..., pattern=r'^\d{11}$')
-    name: str
-    description: str
+class vaccineBase(BaseModel):
+    anvisa_code: str
     manufacturer: str
+    description: str
+    patient_cpf: str
+    nurse_cpf: str
 
 
-class VaccineIn(VaccineBase):
+class vaccineIn(vaccineBase):
     pass
 
-class VaccineOut(VaccineBase):
-    id: int
+
+class vaccineOut(vaccineBase):
+    message : str
 
 
-class VaccineUpdate(VaccineBase):
-    pass
+class vaccineUpdate(vaccineBase):
+    anvisa_code: str | None = None
+    manufacturer: str | None = None
+    description: str | None = None
+    patient_cpf: str | None = None
+    nurse_cpf: str | None = None
+    

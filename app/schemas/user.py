@@ -24,3 +24,8 @@ class UserOut(UserBase):
 
 class UserUpdate(UserBase):
     password: str
+    cpf: str | None = None
+    name: str | None = None
+    phone_number: str | None = None
+    birthdate: date | None = None
+    email: EmailStr | None = None

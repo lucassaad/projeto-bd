@@ -20,4 +20,11 @@ class AppointmentIn(AppointmentBase):
 
 class AppointmentOut(AppointmentBase):
     message : str
+
+
+class AppointmentUpdate(AppointmentBase):
+    doctor_cpf: str | None = None
+    patient_cpf: str | None = None
+    ubs_cnes: str | None = None
+    date: datetime | None = None
     

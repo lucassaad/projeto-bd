@@ -1,18 +1,21 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel   
 
 
-class UbsBase(BaseModel):
-    cnes: str = Field(..., pattern=r'^\d{7}$')
-    name: str
-    addres: str
+class ubsBase(BaseModel):
+    cnes: str
+    name : str
+    address: str
 
-
-class UbsIn(UbsBase):
+class ubsIn(ubsBase):
     pass
 
 
-class UbsOut(UbsBase):
-    pass 
+class ubsOut(ubsBase):
+    message : str
 
-class UbsUpdate(UbsBase):
-    pass
+
+class ubsUpdate(ubsBase):
+    cnes: str | None = None
+    name : str | None = None
+    address: str | None = None
+    
