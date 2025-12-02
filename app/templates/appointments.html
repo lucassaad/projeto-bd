@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultas — Sistema UBS</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+    <nav class="nav">
+        <a href="/" class="nav-link">Início</a>
+        <a href="/register" class="nav-link">Cadastre-se</a>
+        <img src="/static/images/ubs.png" class="nav-logo">
+    </nav>
+</header>
+
+<main class="center-box">
+    <h1>Gerenciar Consultas</h1>
+
+    <div class="form-card">
+        <button id="btnBuscar" class="btn" type="button">Buscar Consultas</button>
+        <button id="btnCriar" class="btn" type="button">Criar Consulta</button>
+    </div>
+
+    <form id="formBuscar" class="form-card" style="display:none; margin-top:20px;">
+        <h2>Buscar Consultas</h2>
+
+        <label>Buscar por:</label>
+        <select name="tipo_busca" required>
+            <option value="">Selecione...</option>
+            <option value="patient_cpf">CPF do Paciente</option>
+            <option value="doctor_cpf">CPF do Médico</option>
+            <option value="ubs_cnes">CNES da UBS</option>
+            <option value="datetime">Data</option>
+        </select>
+
+        <label>Valor:</label>
+        <input type="text" name="valor" placeholder="Digite o valor da busca (ex: CPF, CNES, Data)" required>
+
+        <button type="submit" class="btn">Buscar</button>
+    </form>
+
+    <div id="resultadoBusca" class="form-card" style="display:none; margin-top:20px;"></div>
+
+
+    <form id="formCriar" class="form-card" style="display:none; margin-top:20px;">
+        <h2>Criar Nova Consulta</h2>
+
+        <label>CPF do Paciente:</label>
+        <input type="text" name="cpf_paciente" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
+
+        <label>CPF do Médico:</label>
+        <input type="text" name="cpf_medico" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
+
+        <label>CNES da UBS:</label>
+        <input type="text" name="cnes_ubs" placeholder="1234567" inputmode="numeric" maxlength="7" required>
+
+        <label>Data e Hora:</label>
+        <input type="datetime-local" name="data_hora" required>
+
+        <button type="submit" class="btn">Cadastrar Consulta</button>
+    </form>
+
+    <div id="mensagemCriar" style="margin-top:10px;"></div>
+
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Obter referências aos elementos HTML
+    const btnBuscar = document.getElementById('btnBuscar');
+    const btnCriar = document.getElementById('btnCriar');
+    const formBuscar = document.getElementById('formBuscar');
+    const formCriar = document.getElementById('formCriar');
+    const resultadoBusca = document.getElementById('resultadoBusca');
+    const mensagemCriar = document.getElementById('mensagemCriar');
+
+    // 2. Função para alternar a exibição dos formulários
+    function toggleForms(formToShow, formToHide) {
+        formToHide.style.display = 'none';
+        formToShow.style.display = 'block';
+
+        if (formToShow === formBuscar) {
+            mensagemCriar.innerHTML = ''; // Limpa mensagem de criação
+        } else if (formToShow === formCriar) {
+            resultadoBusca.style.display = 'none'; // Oculta resultados de busca
+        }
+    }
+
+    // 3. Listeners para os botões de alternância
+    btnBuscar.addEventListener('click', function() {
+        toggleForms(formBuscar, formCriar);
+    });
+
+    btnCriar.addEventListener('click', function() {
+        toggleForms(formCriar, formBuscar);
+    });
+
+    // --- 4. Lógica de Busca (Conexão Real com FastAPI) ---
+    formBuscar.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Impede o envio padrão
+
+        const tipoBusca = this.querySelector('select[name="tipo_busca"]').value;
+        const valorBusca = this.querySelector('input[name="valor"]').value.trim();
+
+        // Estado de Carregamento
+        resultadoBusca.innerHTML = '<p style="color: blue;">🔍 Buscando consultas...</p>';
+        resultadoBusca.style.display = 'block';
+
+        try {
+            // URL do endpoint de busca no seu roteador de appointments
+            const url = `/appointments/search?tipo_busca=${tipoBusca}&valor=${valorBusca}`;
+            const response = await fetch(url);
+            const data = await response.json(); 
+            
+            if (response.ok) {
+                // Sucesso (Status 200 OK)
+                if (data && data.length > 0) {
+                    let htmlTabela = '<h3>Consultas Encontradas</h3>';
+                    htmlTabela += '<table class="data-table"><thead><tr><th>ID</th><th>CPF Paciente</th><th>CPF Médico</th><th>Data/Hora</th><th>Ações</th></tr></thead><tbody>';
+                    
+                    data.forEach(consulta => {
+                        // Assumindo que a API retorna campos como patient_cpf e doctor_cpf
+                        const dataFormatada = new Date(consulta.data_hora).toLocaleString('pt-BR');
+                        
+                        htmlTabela += `
+                            <tr>
+                                <td>${consulta.id}</td>
+                                <td>${consulta.patient_cpf}</td>
+                                <td>${consulta.doctor_cpf}</td>
+                                <td>${dataFormatada}</td>
+                                <td><button class="btn btn-sm">Editar</button> <button class="btn btn-sm">Excluir</button></td>
+                            </tr>
+                        `;
+                    });
+                    htmlTabela += '</tbody></table>';
+                    resultadoBusca.innerHTML = htmlTabela;
+                } else {
+                    resultadoBusca.innerHTML = '<p>Nenhuma consulta encontrada com os critérios fornecidos.</p>';
+                }
+            } else {
+                // Erro da API (ex: 400 Bad Request, 500 Internal Server Error)
+                const errorMessage = data.detail || 'Falha desconhecida na busca.';
+                resultadoBusca.innerHTML = `<p style="color: red;">❌ Erro na API: ${errorMessage}</p>`;
+            }
+        } catch (error) {
+            // Erro de Conexão ou Rede
+            resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede/conexão: Verifique se o servidor está ativo.</p>`;
+        }
+    });
+
+    // --- 5. Lógica de Criação (Conexão Real com FastAPI) ---
+    formCriar.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Impede o envio padrão
+
+        // Limpa mensagens anteriores e mostra status de processamento
+        mensagemCriar.innerHTML = '<p style="color: blue; font-weight: bold;">⏳ Processando o cadastro...</p>';
+
+        // Monta o objeto JSON com as chaves em inglês
+        const formData = {
+            patient_cpf: this.querySelector('input[name="cpf_paciente"]').value,
+            doctor_cpf: this.querySelector('input[name="cpf_medico"]').value,
+            ubs_cnes: this.querySelector('input[name="cnes_ubs"]').value,
+            data_hora: this.querySelector('input[name="data_hora"]').value
+        };
+
+        try {
+            // Endpoint de criação no seu roteador de appointments (POST /appointments/)
+            const response = await fetch('/appointments/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+
+            if (response.ok) {
+                // Sucesso (Status 201 Created)
+                const successMessage = data.message || 'Consulta cadastrada com sucesso!';
+                mensagemCriar.innerHTML = `<p style="color: green; font-weight: bold;">✅ ${successMessage}</p>`;
+                this.reset(); // Limpa o formulário após o sucesso
+            } else {
+                // Falha na API (Status 400, 401, 500, etc.)
+                const errorMessage = data.detail || data.message || 'Erro ao cadastrar.';
+                mensagemCriar.innerHTML = `<p style="color: red; font-weight: bold;">❌ Erro: ${errorMessage}</p>`;
+            }
+        } catch (error) {
+            // Erro de Conexão ou Rede
+            mensagemCriar.innerHTML = `<p style="color: red;">⚠️ Erro de rede: Verifique a conexão com o servidor.</p>`;
+        }
+    });
+});
+</script>
+</body>
+</html>
