@@ -26,26 +26,21 @@ def upgrade() -> None:
     a.date AS "date",
     a.time AS "time",
     a.status AS status,
+ 
+    p_user.cpf AS patient_cpf,
+    p_user.name AS patient_name,
 
-    p.id AS patient_id,
-    p.name AS patient_name,
-    p.cpf AS patient_cpf,
-
-    d.id AS doctor_id,
-    d.name AS doctor_name,
-    ds.speciality AS doctor_specialty,
-
-    n.id AS nurse_id,
-    n.name AS nurse_name,
+    d_user.cpf AS doctor_cpf,
+    d_user.name AS doctor_name,
+    ds.specialty AS doctor_specialty,
 
     u.cnes AS ubs_cnes,
     u.name AS ubs_name
 
 FROM appointment a
-LEFT JOIN patient p ON p.cpf = a.patient_cpf
-LEFT JOIN doctor d ON d.cpf = a.doctor_cpf
-LEFT JOIN doctor_speciality ds ON ds.doctor_cpf = d.cpf
-LEFT JOIN nurse n ON n.cpf = a.nurse_cpf
+LEFT JOIN "user" p_user ON p_user.cpf = a.patient_cpf
+LEFT JOIN "user" d_user ON d_user.cpf = a.doctor_cpf
+LEFT JOIN doctor_specialty ds ON ds.doctor_cpf = d.cpf
 LEFT JOIN ubs u ON u.cnes = a.ubs_cnes;
 """)
 
