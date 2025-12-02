@@ -1,20 +1,20 @@
 from pydantic import BaseModel   
 
 
-class ubsBase(BaseModel):
+class UbsBase(BaseModel):
     cnes: str
     name : str
     address: str
 
-class ubsIn(ubsBase):
+class UbsIn(ubsBase):
     pass
 
 
-class ubsOut(ubsBase):
+class UbsOut(ubsBase):
     message : str
 
 
-class ubsUpdate(ubsBase):
+class UbsUpdate(ubsBase):
     cnes: str | None = None
     name : str | None = None
     address: str | None = None
