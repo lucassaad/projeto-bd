@@ -19,7 +19,8 @@ class AppointmentIn(AppointmentBase):
 
 
 class AppointmentOut(AppointmentBase):
-    message : str
+    id: int | None = None
+    pass
 
 
 class AppointmentUpdate(AppointmentBase):
