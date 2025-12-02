@@ -1,7 +1,7 @@
 from http import HTTPStatus
-from typing import Annotated
+from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_session
@@ -18,10 +18,46 @@ from app.repositories.appointment import (
 ) 
 from app.schemas.appointment import AppointmentIn, AppointmentOut
 
-router = APIRouter(prefix='/appointment', tags=['Appointment'])
+router = APIRouter(prefix='/appointments', tags=['Appointment'])
 
 db_session = Annotated[Session, Depends(get_session)]
 
+@router.get('/search', response_model=List[AppointmentOut], status_code=HTTPStatus.OK)
+def search_appointments(
+    # type_search corresponde ao 'tipo_busca' no front-end
+    type_search: Annotated[str, Query(alias="tipo_busca")],
+    # value corresponde ao 'valor' no front-end
+    value: Annotated[str, Query(alias="valor")],
+    session: db_session
+):
+    search_map = {
+        'patient_cpf': select_appointment_cpf_patient,
+        'doctor_cpf': select_appointment_cpf_doctor,
+        'ubs_cnes': select_appointment_ubs_cnes,
+        'datetime': select_appointment_datetime,
+    }
+
+    if type_search not in search_map:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f'Invalid search type: {type_search}.'
+        )
+
+    try:
+        repository_function = search_map[type_search]
+        
+        appointments = repository_function(value, session) 
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, 
+            detail=f"Database error during search: {e}"
+        )
+
+    if not appointments:
+        return [] 
+        
+    return appointments
 
 @router.post('/', response_model=AppointmentOut, status_code=HTTPStatus.CREATED)
 def post_appointment(appointment_in: AppointmentIn, session: db_session):
