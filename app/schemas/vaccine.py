@@ -9,15 +9,15 @@ class vaccineBase(BaseModel):
     nurse_cpf: str
 
 
-class vaccineIn(vaccineBase):
+class VaccineIn(vaccineBase):
     pass
 
 
-class vaccineOut(vaccineBase):
+class VaccineOut(vaccineBase):
     message : str
 
 
-class vaccineUpdate(vaccineBase):
+class VaccineUpdate(vaccineBase):
     anvisa_code: str | None = None
     manufacturer: str | None = None
     description: str | None = None

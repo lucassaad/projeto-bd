@@ -12,7 +12,7 @@ class PrescriptionBase(BaseModel):
     date : datetime
     
 
-class Patient_ubsIn(PrescriptionBase):
+class PrescriptionIn(PrescriptionBase):
     pass
 
 

@@ -9,15 +9,15 @@ class MedicationBase(BaseModel):
     description : str
 
 
-class AppointmentIn(MedicationBase):
+class MedicationIn(MedicationBase):
     pass
 
 
-class AppointmentOut(MedicationBase):
+class MedicationOut(MedicationBase):
     pass
 
 
-class AppointmentUpdate(MedicationBase):
+class MedicationUpdate(MedicationBase):
     anvisa_code: str | None = None
     name : str  | None = None
     description : str | None = None
