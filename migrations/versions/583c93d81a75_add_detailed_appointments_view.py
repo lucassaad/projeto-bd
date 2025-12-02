@@ -21,12 +21,12 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     op.execute("""CREATE VIEW detailed_appointments AS
-    SELECT 
+SELECT 
     a.id AS appointment_id,
     a.date AS "date",
     a.time AS "time",
     a.status AS status,
- 
+
     p_user.cpf AS patient_cpf,
     p_user.name AS patient_name,
 
@@ -40,7 +40,7 @@ def upgrade() -> None:
 FROM appointment a
 LEFT JOIN "user" p_user ON p_user.cpf = a.patient_cpf
 LEFT JOIN "user" d_user ON d_user.cpf = a.doctor_cpf
-LEFT JOIN doctor_specialty ds ON ds.doctor_cpf = d.cpf
+LEFT JOIN doctor_specialty ds ON ds.doctor_cpf = d_user.cpf
 LEFT JOIN ubs u ON u.cnes = a.ubs_cnes;
 """)
 
