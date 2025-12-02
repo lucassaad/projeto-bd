@@ -79,3 +79,13 @@ def register_page(request: Request):
         "register.html",
         {"request": request}
     )
+
+# Register page
+@app.get("/appointments", response_class=HTMLResponse)
+def register_page(request: Request):
+    return templates.TemplateResponse(
+        "appointments.html",
+        {"request": request}
+    )
+
+

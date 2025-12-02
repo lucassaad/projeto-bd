@@ -11,22 +11,19 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <style>
-        /* garante que o conteúdo não fique escondido atrás da navbar fixa */
         body {
-            padding-top: 100px; /* ajuste se sua navbar tiver outra altura */
+            padding-top: 100px;
         }
 
-        /* altura do mapa (ocupa a janela menos a navbar) */
         #map {
             width: 100%;
-            height: calc(100vh - 140px); /* ocupa quase toda a tela */
+            height: calc(100vh - 180px);
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             margin: 20px auto;
             max-width: 1200px;
         }
 
-        /* pequena caixa lateral de controle (lista de UBS) */
         .places-list {
             max-width: 1200px;
             margin: 0 auto 10px;
@@ -47,11 +44,16 @@
         }
 
         .place-btn:hover { background: #f0f8ff; }
+
+        .btn-consultas-wrapper {
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <header>
-        
         <nav class="nav">
             <a href="/register" class="nav-link">Cadastre-se</a>
             <a href="/login" class="nav-link">Entrar</a>
@@ -60,31 +62,29 @@
     </header>
 
     <main>
-        <div class="places-list" id="placesList">
-            <!-- botões serão inseridos via JS para centralizar no mapa -->
+
+        <div class="btn-consultas-wrapper">
+            <a href="/appointments" class="btn">Gerenciar Consultas</a>
         </div>
+
+        <div class="places-list" id="placesList"></div>
 
         <div id="map"></div>
     </main>
 
-    <!-- Leaflet JS -->
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-o9N1j7kK3bE2q0kT3u1g8E1n5x7YfY2gq0r2u3v4k5o="
-      crossorigin=""
-    ></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o9N1j7kK3bE2q0kT3u1g8E1n5x7YfY2gq0r2u3v4k5o="
+        crossorigin="">
+    </script>
 
     <script>
-        // inicializa mapa centrado em Brasília (exemplo)
         const map = L.map('map').setView([-15.7801, -47.9292], 12);
 
-        // camada base OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // lista de UBSs de exemplo (nomes e coordenadas)
         const ubsList = [
             {
                 name: "UBS Centro",
@@ -130,15 +130,12 @@
             }
         ];
 
-        // adiciona marcadores ao mapa e cria botões na lista
         const placesListEl = document.getElementById('placesList');
 
-        ubsList.forEach((ubs, idx) => {
-            // marcador com popup
+        ubsList.forEach((ubs) => {
             const marker = L.marker(ubs.coords).addTo(map);
             marker.bindPopup(`<b>${ubs.name}</b><br>${ubs.address}<br><small>Horário: ${ubs.hours}</small>`);
 
-            // botão para centralizar no marcador
             const btn = document.createElement('button');
             btn.className = 'place-btn';
             btn.innerText = ubs.name;
@@ -146,15 +143,9 @@
                 map.setView(ubs.coords, 15, { animate: true });
                 marker.openPopup();
             };
+
             placesListEl.appendChild(btn);
         });
-
-        // opcional: abrir popup da UBS Centro ao carregar
-        // encontrar marcador mais próximo ou o primeiro e abrir popup
-        // (no nosso caso, abrimos o primeiro)
-        // map.eachLayer(...) não é necessário aqui, então só abrir uma popup genérica:
-        // abrir popup aproximado no centro
-        // L.popup().setLatLng([-15.793889, -47.882778]).setContent("<b>UBS Centro</b>").openOn(map);
     </script>
 </body>
 </html>
