@@ -10,26 +10,21 @@ from sqlalchemy.orm import Session
 from psycopg2.errors import ForeignKeyViolation
 
 
-def create_Doctor(Doctor_in: DoctorIn, session: Session):
+def create_doctor(doctor_in: DoctorIn, session: Session):
 
     # Verificar duplicado
-    existing = (
+    existing_doctor = (
         session.execute(
             text("""
                 SELECT *
                 FROM "doctor"
-                WHERE cpf = :cpf OR crm = :crm
+                WHERE cpf = :cpf
             """),
-            {
-                "crm": Doctor_in.crm,
-                "cpf": Doctor_in.cpf
-            }
-        )
-        .mappings()
-        .first()
+            {"cpf": doctor_in.cpf}
+        ).mappings().first()
     )
 
-    if existing:
+    if existing_doctor:
         return {"error": "This doctor does not exist."}
 
     # Tentar inserir
@@ -39,7 +34,7 @@ def create_Doctor(Doctor_in: DoctorIn, session: Session):
                 INSERT INTO Doctor (cpf, crm)
                 VALUES (:cpf, :crm)
             """),
-            Doctor_in.model_dump()
+            doctor_in.model_dump()
         )
         session.commit()
 
@@ -54,125 +49,114 @@ def create_Doctor(Doctor_in: DoctorIn, session: Session):
         return None
 
     # Buscar registro final inserido
-    db_row = (
-        session.execute(
-            text("""
-                SELECT *
-                FROM Doctor
-                WHERE cpf = :cpf AND ubs_cnes = :cnes
-            """),
-            {
-                "cpf": Doctor_in.doctor_cpf,
-                "cnes": Doctor_in.cnes_ubs
-            }
-        )
-        .mappings()
-        .first()
-    )
-
-    return db_row
+    return select_doctor_by_cpf(doctor_in.cpf, session)
 
 
 
 def select_doctor_by_cpf(cpf: str, session: Session):
-    user = (
-        session.execute(
-            text("""
-            SELECT * FROM "Doctor"
-            WHERE cpf = :cpf
-        """),
-            {'cpf': cpf},
-        )
-        .mappings()
-        .first()
-    )
-
-    if user is None:
-        return None
-
-    return dict(user)
-
-
-
-def get_all_Doctor(session: Session):
     result = (
         session.execute(
             text("""
-            SELECT * FROM "Doctor"
-        """)
-        )
-        .mappings()
-        .fetchall()
+            SELECT 
+                crm as doctor_crm,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM doctor d 
+            JOIN "user" u ON u.cpf = d.cpf
+            WHERE d.cpf = :doctor_cpf
+        """),
+            {'doctor_cpf': cpf},
+        ).mappings().first()
     )
 
-    users = [dict(row) for row in result]
+    if result is None:
+        return None
 
-    return users
+    return {
+            "crm": result["doctor_crm"],
+            "user": {
+                "id": result['user_id'],
+                "cpf": result["user_cpf"],
+                "name": result["name"],
+                "phone_number": result["phone_number"],
+                "birthdate": result["birthdate"],
+                "email": result["email"]
+            }
+        }
 
 
-def update_Doctor(Doctor_info: DoctorIn, session: Session):
 
-    user = (
+def select_all_doctors(session: Session):
+    result = (
         session.execute(
             text("""
-            SELECT * FROM "Doctor"
-            WHERE cpf = :cpf
+            SELECT 
+                crm as doctor_crm,
+                u.id AS user_id,
+                u.cpf AS user_cpf,
+                u.name,
+                u.phone_number,
+                u.birthdate,
+                u.email
+            FROM doctor d 
+            JOIN "user" u ON u.cpf = d.cpf
         """),
-            {'cpf': Doctor_info.cpf},
-        )
-        .mappings()
-        .first()
+        ).mappings().all()
     )
 
-    if user is None:
+    return [
+        {
+            "crm": row["doctor_crm"],
+            "user": {
+                "id": row['user_id'],
+                "cpf": row["user_cpf"],
+                "name": row["name"],
+                "phone_number": row["phone_number"],
+                "birthdate": row["birthdate"],
+                "email": row["email"]
+            }
+        }
+        for row in result
+    ]   
+
+
+def update_doctor(doctor_info: DoctorUpdate, cpf: str, session: Session):
+
+    result = select_doctor_by_cpf(cpf, session)
+
+    if result is None:
         return None
 
     session.execute(
         text("""
-            UPDATE "Doctor" SET
-                crm = :crm
+            UPDATE "doctor" 
+            SET
+                crm = :crm,
+                cpf = :cpf
             WHERE cpf = :cpf
         """),
-        {**Doctor_info.model_dump()},
+        {**doctor_info.model_dump(), "cpf": cpf},
     )
 
     session.commit()
 
-    updated_user = (
-        session.execute(
-            text("""
-            SELECT * FROM "Doctor"
-            WHERE cpf = :cpf
-        """),
-            {'cpf': Doctor_info.cpf},
-        )
-        .mappings()
-        .first()
-    )
-
-    return updated_user
+    return select_doctor_by_cpf(cpf, session)
 
 
-def delete_Doctor_db(cpf: str, session: Session):
+def delete_doctor_db(cpf: str, session: Session):
 
-    user = (
-        session.execute(
-            text("""
-            SELECT * FROM "Doctor"
-            WHERE cpf = :cpf
-        """),
-            {'cpf': cpf},
-        )
-        .mappings()
-        .first()
-    )
+    result = select_doctor_by_cpf(cpf, session)
 
-    if user is None:
+    if result is None:
         return None
 
     session.execute(
         text("""
-            DELETE FROM "Doctor"
+            DELETE FROM "doctor"
             WHERE cpf = :cpf
         """),
         {'cpf': cpf},
@@ -180,4 +164,4 @@ def delete_Doctor_db(cpf: str, session: Session):
 
     session.commit()
 
-    return dict(user)
+    return result
