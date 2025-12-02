@@ -35,6 +35,12 @@ def upgrade() -> None:
             FROM appointment
             WHERE cpf_medico = NEW.cpf_medico
               AND data_hora = NEW.data_hora
+              AND NOT (
+                  cpf_paciente = COALESCE(OLD.cpf_paciente, '')
+                  AND cnes_ubs = COALESCE(OLD.cnes_ubs, '')
+                  AND data_hora = COALESCE(OLD.data_hora, '1900-01-01')
+                  AND cpf_medico = COALESCE(OLD.cpf_medico, '')
+              )
         ) THEN
             RAISE EXCEPTION 'Conflict: Doctor % already has an appointment scheduled at %.',
                 medico_nome, NEW.data_hora;
@@ -47,7 +53,7 @@ def upgrade() -> None:
 
     op.execute("""
     CREATE TRIGGER trg_check_appointment_conflict
-    BEFORE INSERT ON appointment
+    BEFORE INSERT OR UPDATE ON appointment
     FOR EACH ROW
     EXECUTE FUNCTION check_appointment_conflict();
     """)
@@ -55,4 +61,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    pass
+    op.execute("DROP TRIGGER IF EXISTS trg_check_appointment_conflict ON appointment;")
+    op.execute("DROP FUNCTION IF EXISTS check_appointment_conflict();")
