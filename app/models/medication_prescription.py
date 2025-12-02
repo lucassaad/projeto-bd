@@ -17,7 +17,7 @@ class Medication_Prescription:
     medication_code: Mapped[str] = mapped_column(
         String(13), ForeignKey('medication.anvisa_code')
     )
-    prescription_id: Mapped[Prescription] = mapped_column(
+    prescription_id: Mapped[int] = mapped_column(
         ForeignKey('prescription.id')
     )
 
