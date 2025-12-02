@@ -52,11 +52,13 @@
 <body>
     <header>
         
-        <nav class="nav">
-            <a href="/register" class="nav-link">Cadastre-se</a>
-            <a href="/login" class="nav-link">Entrar</a>
+        <nav class="nav" id="navbar">
+            <a href="/register" class="nav-link" id="nav-register">Cadastre-se</a>
+            <a href="/login" class="nav-link" id="nav-login">Entrar</a>
             <img src="/static/images/ubs.png" class="nav-logo">
         </nav>
+
+
     </header>
 
     <main>
@@ -149,12 +151,43 @@
             placesListEl.appendChild(btn);
         });
 
-        // opcional: abrir popup da UBS Centro ao carregar
-        // encontrar marcador mais próximo ou o primeiro e abrir popup
-        // (no nosso caso, abrimos o primeiro)
-        // map.eachLayer(...) não é necessário aqui, então só abrir uma popup genérica:
-        // abrir popup aproximado no centro
-        // L.popup().setLatLng([-15.793889, -47.882778]).setContent("<b>UBS Centro</b>").openOn(map);
+        function updateNavbar() {
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            const navLogin = document.getElementById("nav-login");
+            const navRegister = document.getElementById("nav-register");
+            const navbar = document.getElementById("navbar");
+
+            if (user) {
+                // esconder login/cadastro
+                if (navLogin) navLogin.style.display = "none";
+                if (navRegister) navRegister.style.display = "none";
+
+                // nome
+                const nameEl = document.createElement("span");
+                nameEl.className = "nav-link";
+                nameEl.innerText = user.name || user.email || user.cpf;
+                nameEl.style.fontWeight = "bold";
+
+                // botão sair
+                const logoutEl = document.createElement("a");
+                logoutEl.className = "nav-link";
+                logoutEl.href = "#";
+                logoutEl.innerText = "Sair";
+                logoutEl.style.color = "red";
+
+                logoutEl.onclick = () => {
+                    localStorage.removeItem("user");
+                    window.location.reload();
+                };
+
+                navbar.appendChild(nameEl);
+                navbar.appendChild(logoutEl);
+            }
+        }
+
+        updateNavbar();
+
     </script>
 </body>
 </html>
