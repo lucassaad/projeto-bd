@@ -35,8 +35,7 @@ def create_Medication(Medication: MedicationIn, session: Session):
         session.commit()
     except IntegrityError as e:
         session.rollback()
-        return None
-    
+        return None 
 
     db_Medication = (
         session.execute(
