@@ -21,6 +21,7 @@ from app.api import exam
 from app.api import prescription
 from app.api import medication_prescription
 from app.api import medication
+from app.api import detailed_appointments
 
 app = FastAPI()
 
@@ -42,6 +43,7 @@ app.include_router(exam.router)
 app.include_router(prescription.router)
 app.include_router(medication_prescription.router)
 app.include_router(medication.router)
+app.include_router(detailed_appointments.router)
 
 # Templates
 templates = Jinja2Templates(directory="app/templates")
