@@ -25,7 +25,6 @@
 
     <form id="formBuscar" class="form-card" style="display:none; margin-top:20px;">
         <h2>Buscar Consultas</h2>
-
         <label>Buscar por:</label>
         <select name="tipo_busca" required>
             <option value="">Selecione...</option>
@@ -34,31 +33,28 @@
             <option value="ubs_cnes">CNES da UBS</option>
             <option value="datetime">Data</option>
         </select>
-
         <label>Valor:</label>
         <input type="text" name="valor" placeholder="Digite o valor da busca (ex: CPF, CNES, Data)" required>
-
         <button type="submit" class="btn">Buscar</button>
     </form>
 
     <div id="resultadoBusca" class="form-card" style="display:none; margin-top:20px;"></div>
 
-
     <form id="formCriar" class="form-card" style="display:none; margin-top:20px;">
         <h2>Criar Nova Consulta</h2>
-
+        
         <label>CPF do Paciente:</label>
-        <input type="text" name="cpf_paciente" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
-
+        <input type="text" name="patient_cpf" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
+        
         <label>CPF do Médico:</label>
-        <input type="text" name="cpf_medico" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
-
+        <input type="text" name="doctor_cpf" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
+        
         <label>CNES da UBS:</label>
-        <input type="text" name="cnes_ubs" placeholder="1234567" inputmode="numeric" maxlength="7" required>
-
+        <input type="text" name="ubs_cnes" placeholder="1234567" inputmode="numeric" maxlength="7" required>
+        
         <label>Data e Hora:</label>
-        <input type="datetime-local" name="data_hora" required>
-
+        <input type="datetime-local" name="appointment_datetime" required>
+        
         <button type="submit" class="btn">Cadastrar Consulta</button>
     </form>
 
@@ -67,6 +63,40 @@
 </main>
 
 <script>
+/**
+ * Utilitário 1: Formata a data vinda do backend (YYYY-MM-DD HH:MM:SS.ms) para exibição.
+ */
+function formatAppointmentDateTime(dateString) {
+    if (!dateString) {
+        return 'N/A';
+    }
+    // Padroniza a string: Substitui o espaço por 'T' para aderir ao formato ISO 8601
+    const cleanDateString = dateString.replace(' ', 'T'); 
+    const dataObj = new Date(cleanDateString);
+    
+    if (isNaN(dataObj.getTime())) {
+        return `Erro de Data: ${dateString.substring(0, 19)}`;
+    }
+    
+    // Retorna a data e hora formatada em português (pt-BR)
+    return dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'});
+}
+
+/**
+ * Utilitário 2: Converte o formato do input datetime-local (YYYY-MM-DDTHH:MM) 
+ * para o formato do backend (YYYY-MM-DD HH:MM:00.000).
+ */
+function formatToBackendDatetime(localDatetimeString) {
+    if (!localDatetimeString || localDatetimeString.length < 16) {
+        return '';
+    }
+    // 1. Substitui 'T' por espaço para o formato do banco de dados (PostgreSQL/SQLAlchemy)
+    const baseFormat = localDatetimeString.replace('T', ' ');
+    // 2. Adiciona segundos e milissegundos zerados.
+    return `${baseFormat}:00.000`; 
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Obter referências aos elementos HTML
     const btnBuscar = document.getElementById('btnBuscar');
@@ -82,9 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
         formToShow.style.display = 'block';
 
         if (formToShow === formBuscar) {
-            mensagemCriar.innerHTML = ''; // Limpa mensagem de criação
+            mensagemCriar.innerHTML = '';
         } else if (formToShow === formCriar) {
-            resultadoBusca.style.display = 'none'; // Oculta resultados de busca
+            resultadoBusca.style.display = 'none';
         }
     }
 
@@ -97,32 +127,29 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleForms(formCriar, formBuscar);
     });
 
-    // --- 4. Lógica de Busca (Conexão Real com FastAPI) ---
+    // --- 4. Lógica de Busca: Recebe JSON e Monta a Tabela ---
     formBuscar.addEventListener('submit', async function(event) {
-        event.preventDefault(); // Impede o envio padrão
+        event.preventDefault(); 
 
         const tipoBusca = this.querySelector('select[name="tipo_busca"]').value;
         const valorBusca = this.querySelector('input[name="valor"]').value.trim();
 
-        // Estado de Carregamento
         resultadoBusca.innerHTML = '<p style="color: blue;">🔍 Buscando consultas...</p>';
         resultadoBusca.style.display = 'block';
 
         try {
-            // URL do endpoint de busca no seu roteador de appointments
             const url = `/appointments/search?tipo_busca=${tipoBusca}&valor=${valorBusca}`;
             const response = await fetch(url);
             const data = await response.json(); 
             
             if (response.ok) {
-                // Sucesso (Status 200 OK)
                 if (data && data.length > 0) {
                     let htmlTabela = '<h3>Consultas Encontradas</h3>';
                     htmlTabela += '<table class="data-table"><thead><tr><th>ID</th><th>CPF Paciente</th><th>CPF Médico</th><th>Data/Hora</th><th>Ações</th></tr></thead><tbody>';
                     
                     data.forEach(consulta => {
-                        // Assumindo que a API retorna campos como patient_cpf e doctor_cpf
-                        const dataFormatada = new Date(consulta.data_hora).toLocaleString('pt-BR');
+                        // O campo JSON retornado pelo backend deve ser 'appointment_datetime'
+                        const dataFormatada = formatAppointmentDateTime(consulta.appointment_datetime);
                         
                         htmlTabela += `
                             <tr>
@@ -130,7 +157,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td>${consulta.patient_cpf}</td>
                                 <td>${consulta.doctor_cpf}</td>
                                 <td>${dataFormatada}</td>
-                                <td><button class="btn btn-sm">Editar</button> <button class="btn btn-sm">Excluir</button></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="alert('Editar consulta ${consulta.id}')">Editar</button> 
+                                    <button class="btn btn-sm" onclick="alert('Excluir consulta ${consulta.id}')">Excluir</button>
+                                </td>
                             </tr>
                         `;
                     });
@@ -140,56 +170,73 @@ document.addEventListener('DOMContentLoaded', function() {
                     resultadoBusca.innerHTML = '<p>Nenhuma consulta encontrada com os critérios fornecidos.</p>';
                 }
             } else {
-                // Erro da API (ex: 400 Bad Request, 500 Internal Server Error)
-                const errorMessage = data.detail || 'Falha desconhecida na busca.';
-                resultadoBusca.innerHTML = `<p style="color: red;">❌ Erro na API: ${errorMessage}</p>`;
+                let errorMessage;
+                if (data && typeof data === 'object') {
+                    errorMessage = data.detail || data.message || `API Error: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    errorMessage = data ? data.toString() : 'Falha desconhecida na busca.';
+                }
+                resultadoBusca.innerHTML = `<p style="color: red; white-space: pre-wrap;">❌ Erro na API: ${errorMessage}</p>`;
             }
         } catch (error) {
-            // Erro de Conexão ou Rede
-            resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede/conexão: Verifique se o servidor está ativo.</p>`;
+            // Tratamento de Erro de Conexão/Rede
+            console.error('Erro de conexão:', error);
+            const displayError = error.message || error.toString() || 'Verifique se o servidor está ativo.';
+            resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede: ${displayError}</p>`;
         }
     });
 
-    // --- 5. Lógica de Criação (Conexão Real com FastAPI) ---
+    // --- 5. Lógica de Criação ---
     formCriar.addEventListener('submit', async function(event) {
-        event.preventDefault(); // Impede o envio padrão
+        event.preventDefault(); 
 
-        // Limpa mensagens anteriores e mostra status de processamento
         mensagemCriar.innerHTML = '<p style="color: blue; font-weight: bold;">⏳ Processando o cadastro...</p>';
+        
+        // Pega o valor do campo name="appointment_datetime" (em inglês)
+        const rawDataHora = this.querySelector('input[name="appointment_datetime"]').value;
 
-        // Monta o objeto JSON com as chaves em inglês
+        // Converte para o formato de backend
+        const formattedDataHora = formatToBackendDatetime(rawDataHora);
+        
+        console.log('Valor enviado ao backend (formatado):', formattedDataHora);
+
+
         const formData = {
-            patient_cpf: this.querySelector('input[name="cpf_paciente"]').value,
-            doctor_cpf: this.querySelector('input[name="cpf_medico"]').value,
-            ubs_cnes: this.querySelector('input[name="cnes_ubs"]').value,
-            data_hora: this.querySelector('input[name="data_hora"]').value
+            // Chaves JSON em inglês (sincronizadas com o modelo Appointment)
+            patient_cpf: this.querySelector('input[name="patient_cpf"]').value,
+            doctor_cpf: this.querySelector('input[name="doctor_cpf"]').value,
+            ubs_cnes: this.querySelector('input[name="ubs_cnes"]').value,
+            appointment_datetime: formattedDataHora 
         };
 
         try {
-            // Endpoint de criação no seu roteador de appointments (POST /appointments/)
             const response = await fetch('/appointments/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
             
+            // O tratamento de erro foi melhorado para evitar o [object Object]
             const data = await response.json();
 
             if (response.ok) {
-                // Sucesso (Status 201 Created)
                 const successMessage = data.message || 'Consulta cadastrada com sucesso!';
                 mensagemCriar.innerHTML = `<p style="color: green; font-weight: bold;">✅ ${successMessage}</p>`;
-                this.reset(); // Limpa o formulário após o sucesso
+                this.reset();
             } else {
-                // Falha na API (Status 400, 401, 500, etc.)
-                const errorMessage = data.detail || data.message || 'Erro ao cadastrar.';
-                mensagemCriar.innerHTML = `<p style="color: red; font-weight: bold;">❌ Erro: ${errorMessage}</p>`;
+                let errorMessage;
+                if (data && typeof data === 'object') {
+                    errorMessage = data.detail || data.message || `API Error: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    errorMessage = data.toString() || 'Erro ao cadastrar.';
+                }
+                mensagemCriar.innerHTML = `<p style="color: red; font-weight: bold; white-space: pre-wrap;">❌ Erro: ${errorMessage}</p>`;
             }
         } catch (error) {
-            // Erro de Conexão ou Rede
-            mensagemCriar.innerHTML = `<p style="color: red;">⚠️ Erro de rede: Verifique a conexão com o servidor.</p>`;
+            // Tratamento de Erro de Conexão/Rede
+            console.error('Erro de conexão:', error);
+            const displayError = error.message || error.toString() || 'Verifique a conexão com o servidor.';
+            mensagemCriar.innerHTML = `<p style="color: red;">⚠️ Erro de rede: ${displayError}</p>`;
         }
     });
 });
