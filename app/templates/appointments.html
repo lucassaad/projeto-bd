@@ -1,59 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Consultas — Sistema UBS</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <title>Consultas — Sistema UBS</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <header>
-    <nav class="nav">
-        <a href="/" class="nav-link">Início</a>
-        <a href="/register" class="nav-link">Cadastre-se</a>
-        <img src="/static/images/ubs.png" class="nav-logo">
-    </nav>
+    <nav class="nav">
+        <a href="/" class="nav-link">Início</a>
+        <a href="/register" class="nav-link">Cadastre-se</a>
+        <img src="/static/images/ubs.png" class="nav-logo">
+    </nav>
 </header>
 
 <main class="center-box">
-    <h1>Gerenciar Consultas</h1>
+    <h1>Gerenciar Consultas</h1>
 
-    <div class="form-card">
-        <button id="btnBuscar" class="btn" type="button">Buscar Consultas</button>
-        <button id="btnCriar" class="btn" type="button">Criar Consulta</button>
-    </div>
+    <div class="form-card">
+        <button id="btnBuscar" class="btn" type="button">Buscar Consultas</button>
+        <button id="btnCriar" class="btn" type="button">Criar Consulta</button>
+    </div>
 
-    <form id="formBuscar" class="form-card" style="display:none; margin-top:20px;">
-        <h2>Buscar Consultas</h2>
-        <label>Buscar por:</label>
-        <select name="tipo_busca" required>
-            <option value="">Selecione...</option>
-            <option value="patient_cpf">CPF do Paciente</option>
-            <option value="doctor_cpf">CPF do Médico</option>
-            <option value="ubs_cnes">CNES da UBS</option>
-            <option value="datetime">Data</option>
-        </select>
-        <label>Valor:</label>
-        <input type="text" name="valor" placeholder="Digite o valor da busca (ex: CPF, CNES, Data)" required>
-        <button type="submit" class="btn">Buscar</button>
-    </form>
+    <form id="formBuscar" class="form-card" style="display:none; margin-top:20px;">
+        <h2>Buscar Consultas</h2>
+        <label>Buscar por:</label>
+        <select name="tipo_busca" required>
+            <option value="">Selecione...</option>
+            <option value="patient_cpf">CPF do Paciente</option>
+            <option value="doctor_cpf">CPF do Médico</option>
+            <option value="ubs_cnes">CNES da UBS</option>
+            <option value="datetime">Data</option>
+        </select>
+        <label>Valor:</label>
+        <input type="text" name="valor" placeholder="Digite o valor da busca (ex: CPF, CNES, Data)" required>
+        <button type="submit" class="btn">Buscar</button>
+    </form>
 
-    <div id="resultadoBusca" class="form-card" style="display:none; margin-top:20px;"></div>
+    <div id="resultadoBusca" class="form-card" style="display:none; margin-top:20px;"></div>
 
-    <form id="formCriar" class="form-card" style="display:none; margin-top:20px;">
-        <h2>Criar Nova Consulta</h2>
-        <label>CPF do Paciente:</label>
-        <input type="text" name="cpf_paciente" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
-        <label>CPF do Médico:</label>
-        <input type="text" name="cpf_medico" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
-        <label>CNES da UBS:</label>
-        <input type="text" name="cnes_ubs" placeholder="1234567" inputmode="numeric" maxlength="7" required>
-        <label>Data e Hora:</label>
-        <input type="datetime-local" name="data_hora" required>
-        <button type="submit" class="btn">Cadastrar Consulta</button>
-    </form>
+    <form id="formCriar" class="form-card" style="display:none; margin-top:20px;">
+        <h2>Criar Nova Consulta</h2>
+        
+        <label>CPF do Paciente:</label>
+        <input type="text" name="patient_cpf" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
+        
+        <label>CPF do Médico:</label>
+        <input type="text" name="doctor_cpf" placeholder="00000000000" inputmode="numeric" maxlength="11" required>
+        
+        <label>CNES da UBS:</label>
+        <input type="text" name="ubs_cnes" placeholder="1234567" inputmode="numeric" maxlength="7" required>
+        
+        <label>Data e Hora:</label>
+        <input type="datetime-local" name="appointment_datetime" required>
+        
+        <button type="submit" class="btn">Cadastrar Consulta</button>
+    </form>
 
-    <div id="mensagemCriar" style="margin-top:10px;"></div>
+    <div id="mensagemCriar" style="margin-top:10px;"></div>
 
 </main>
 
@@ -65,7 +70,7 @@ function formatAppointmentDateTime(dateString) {
     if (!dateString) {
         return 'N/A';
     }
-    // Padroniza a string: Substitui o espaço por 'T' para aderir ao formato ISO 8601, ignorando milissegundos para new Date()
+    // Padroniza a string: Substitui o espaço por 'T' para aderir ao formato ISO 8601
     const cleanDateString = dateString.replace(' ', 'T'); 
     const dataObj = new Date(cleanDateString);
     
@@ -73,6 +78,7 @@ function formatAppointmentDateTime(dateString) {
         return `Erro de Data: ${dateString.substring(0, 19)}`;
     }
     
+    // Retorna a data e hora formatada em português (pt-BR)
     return dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'});
 }
 
@@ -84,7 +90,7 @@ function formatToBackendDatetime(localDatetimeString) {
     if (!localDatetimeString || localDatetimeString.length < 16) {
         return '';
     }
-    // 1. Substitui 'T' por espaço.
+    // 1. Substitui 'T' por espaço para o formato do banco de dados (PostgreSQL/SQLAlchemy)
     const baseFormat = localDatetimeString.replace('T', ' ');
     // 2. Adiciona segundos e milissegundos zerados.
     return `${baseFormat}:00.000`; 
@@ -92,148 +98,147 @@ function formatToBackendDatetime(localDatetimeString) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Obter referências aos elementos HTML
-    const btnBuscar = document.getElementById('btnBuscar');
-    const btnCriar = document.getElementById('btnCriar');
-    const formBuscar = document.getElementById('formBuscar');
-    const formCriar = document.getElementById('formCriar');
-    const resultadoBusca = document.getElementById('resultadoBusca');
-    const mensagemCriar = document.getElementById('mensagemCriar');
+    // 1. Obter referências aos elementos HTML
+    const btnBuscar = document.getElementById('btnBuscar');
+    const btnCriar = document.getElementById('btnCriar');
+    const formBuscar = document.getElementById('formBuscar');
+    const formCriar = document.getElementById('formCriar');
+    const resultadoBusca = document.getElementById('resultadoBusca');
+    const mensagemCriar = document.getElementById('mensagemCriar');
 
-    // 2. Função para alternar a exibição dos formulários
-    function toggleForms(formToShow, formToHide) {
-        formToHide.style.display = 'none';
-        formToShow.style.display = 'block';
+    // 2. Função para alternar a exibição dos formulários
+    function toggleForms(formToShow, formToHide) {
+        formToHide.style.display = 'none';
+        formToShow.style.display = 'block';
 
-        if (formToShow === formBuscar) {
-            mensagemCriar.innerHTML = '';
-        } else if (formToShow === formCriar) {
-            resultadoBusca.style.display = 'none';
-        }
-    }
+        if (formToShow === formBuscar) {
+            mensagemCriar.innerHTML = '';
+        } else if (formToShow === formCriar) {
+            resultadoBusca.style.display = 'none';
+        }
+    }
 
-    // 3. Listeners para os botões de alternância
-    btnBuscar.addEventListener('click', function() {
-        toggleForms(formBuscar, formCriar);
-    });
+    // 3. Listeners para os botões de alternância
+    btnBuscar.addEventListener('click', function() {
+        toggleForms(formBuscar, formCriar);
+    });
 
-    btnCriar.addEventListener('click', function() {
-        toggleForms(formCriar, formBuscar);
-    });
+    btnCriar.addEventListener('click', function() {
+        toggleForms(formCriar, formBuscar);
+    });
 
-    // --- 4. Lógica de Busca: Recebe JSON e Monta a Tabela ---
-    formBuscar.addEventListener('submit', async function(event) {
-        event.preventDefault(); 
+    // --- 4. Lógica de Busca: Recebe JSON e Monta a Tabela ---
+    formBuscar.addEventListener('submit', async function(event) {
+        event.preventDefault(); 
 
-        const tipoBusca = this.querySelector('select[name="tipo_busca"]').value;
-        const valorBusca = this.querySelector('input[name="valor"]').value.trim();
+        const tipoBusca = this.querySelector('select[name="tipo_busca"]').value;
+        const valorBusca = this.querySelector('input[name="valor"]').value.trim();
 
-        // Estado de Carregamento
-        resultadoBusca.innerHTML = '<p style="color: blue;">🔍 Buscando consultas...</p>';
-        resultadoBusca.style.display = 'block';
+        resultadoBusca.innerHTML = '<p style="color: blue;">🔍 Buscando consultas...</p>';
+        resultadoBusca.style.display = 'block';
 
-        try {
-            const url = `/appointments/search?tipo_busca=${tipoBusca}&valor=${valorBusca}`;
-            const response = await fetch(url);
-            const data = await response.json(); 
-            
-            if (response.ok) {
-                // Sucesso (Status 200 OK)
-                if (data && data.length > 0) {
-                    let htmlTabela = '<h3>Consultas Encontradas</h3>';
-                    htmlTabela += '<table class="data-table"><thead><tr><th>ID</th><th>CPF Paciente</th><th>CPF Médico</th><th>Data/Hora</th><th>Ações</th></tr></thead><tbody>';
-                    
-                    data.forEach(consulta => {
-                        // 🎯 USA O UTILITÁRIO formatAppointmentDateTime
-                        const dataFormatada = formatAppointmentDateTime(consulta.data_hora);
-                        
-                        htmlTabela += `
-                            <tr>
-                                <td>${consulta.id}</td>
-                                <td>${consulta.patient_cpf}</td>
-                                <td>${consulta.doctor_cpf}</td>
-                                <td>${dataFormatada}</td>
-                                <td>
-                                    <button class="btn btn-sm" onclick="alert('Editar consulta ${consulta.id}')">Editar</button> 
-                                    <button class="btn btn-sm" onclick="alert('Excluir consulta ${consulta.id}')">Excluir</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    htmlTabela += '</tbody></table>';
-                    resultadoBusca.innerHTML = htmlTabela;
-                } else {
-                    resultadoBusca.innerHTML = '<p>Nenhuma consulta encontrada com os critérios fornecidos.</p>';
-                }
-            } else {
-                // 🎯 Tratamento de Erro de Busca Melhorado
-                let errorMessage;
+        try {
+            const url = `/appointments/search?tipo_busca=${tipoBusca}&valor=${valorBusca}`;
+            const response = await fetch(url);
+            const data = await response.json(); 
+            
+            if (response.ok) {
+                if (data && data.length > 0) {
+                    let htmlTabela = '<h3>Consultas Encontradas</h3>';
+                    htmlTabela += '<table class="data-table"><thead><tr><th>ID</th><th>CPF Paciente</th><th>CPF Médico</th><th>Data/Hora</th><th>Ações</th></tr></thead><tbody>';
+                    
+                    data.forEach(consulta => {
+                        // O campo JSON retornado pelo backend deve ser 'appointment_datetime'
+                        const dataFormatada = formatAppointmentDateTime(consulta.appointment_datetime);
+                        
+                        htmlTabela += `
+                            <tr>
+                                <td>${consulta.id}</td>
+                                <td>${consulta.patient_cpf}</td>
+                                <td>${consulta.doctor_cpf}</td>
+                                <td>${dataFormatada}</td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="alert('Editar consulta ${consulta.id}')">Editar</button> 
+                                    <button class="btn btn-sm" onclick="alert('Excluir consulta ${consulta.id}')">Excluir</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    htmlTabela += '</tbody></table>';
+                    resultadoBusca.innerHTML = htmlTabela;
+                } else {
+                    resultadoBusca.innerHTML = '<p>Nenhuma consulta encontrada com os critérios fornecidos.</p>';
+                }
+            } else {
+                let errorMessage;
                 if (data && typeof data === 'object') {
                     errorMessage = data.detail || data.message || `API Error: ${JSON.stringify(data, null, 2)}`;
                 } else {
                     errorMessage = data ? data.toString() : 'Falha desconhecida na busca.';
                 }
-                resultadoBusca.innerHTML = `<p style="color: red; white-space: pre-wrap;">❌ Erro na API: ${errorMessage}</p>`;
-            }
-        } catch (error) {
-            // Erro de Conexão ou Rede
-            console.error('Erro de conexão:', error);
-            resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede: Verifique se o servidor está ativo.</p>`;
-        }
-    });
+                resultadoBusca.innerHTML = `<p style="color: red; white-space: pre-wrap;">❌ Erro na API: ${errorMessage}</p>`;
+            }
+        } catch (error) {
+            // Tratamento de Erro de Conexão/Rede
+            console.error('Erro de conexão:', error);
+            const displayError = error.message || error.toString() || 'Verifique se o servidor está ativo.';
+            resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede: ${displayError}</p>`;
+        }
+    });
 
-    // --- 5. Lógica de Criação ---
-    formCriar.addEventListener('submit', async function(event) {
-        event.preventDefault(); 
+    // --- 5. Lógica de Criação ---
+    formCriar.addEventListener('submit', async function(event) {
+        event.preventDefault(); 
 
-        mensagemCriar.innerHTML = '<p style="color: blue; font-weight: bold;">⏳ Processando o cadastro...</p>';
+        mensagemCriar.innerHTML = '<p style="color: blue; font-weight: bold;">⏳ Processando o cadastro...</p>';
         
-        // 🎯 Captura o valor bruto do input datetime-local
-        const rawDataHora = this.querySelector('input[name="data_hora"]').value;
+        // Pega o valor do campo name="appointment_datetime" (em inglês)
+        const rawDataHora = this.querySelector('input[name="appointment_datetime"]').value;
 
-        // 🎯 CONVERTE PARA O FORMATO EXIGIDO PELO BACKEND (YYYY-MM-DD HH:MM:00.000)
+        // Converte para o formato de backend
         const formattedDataHora = formatToBackendDatetime(rawDataHora);
         
-        // DEBUG: Mostra o formato que será enviado no console do navegador (F12)
         console.log('Valor enviado ao backend (formatado):', formattedDataHora);
 
 
-        const formData = {
-            patient_cpf: this.querySelector('input[name="cpf_paciente"]').value,
-            doctor_cpf: this.querySelector('input[name="cpf_medico"]').value,
-            ubs_cnes: this.querySelector('input[name="cnes_ubs"]').value,
-            // 🎯 Envia o valor formatado
-            data_hora: formattedDataHora 
-        };
+        const formData = {
+            // Chaves JSON em inglês (sincronizadas com o modelo Appointment)
+            patient_cpf: this.querySelector('input[name="patient_cpf"]').value,
+            doctor_cpf: this.querySelector('input[name="doctor_cpf"]').value,
+            ubs_cnes: this.querySelector('input[name="ubs_cnes"]').value,
+            appointment_datetime: formattedDataHora 
+        };
 
-        try {
-            const response = await fetch('/appointments/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-            
+        try {
+            const response = await fetch('/appointments/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            // O tratamento de erro foi melhorado para evitar o [object Object]
             const data = await response.json();
 
-            if (response.ok) {
-                const successMessage = data.message || 'Consulta cadastrada com sucesso!';
-                mensagemCriar.innerHTML = `<p style="color: green; font-weight: bold;">✅ ${successMessage}</p>`;
-                this.reset();
-            } else {
-                // 🎯 Tratamento de Erro de Criação Melhorado (Exibe o JSON completo)
-                let errorMessage;
+            if (response.ok) {
+                const successMessage = data.message || 'Consulta cadastrada com sucesso!';
+                mensagemCriar.innerHTML = `<p style="color: green; font-weight: bold;">✅ ${successMessage}</p>`;
+                this.reset();
+            } else {
+                let errorMessage;
                 if (data && typeof data === 'object') {
                     errorMessage = data.detail || data.message || `API Error: ${JSON.stringify(data, null, 2)}`;
                 } else {
                     errorMessage = data.toString() || 'Erro ao cadastrar.';
                 }
-                mensagemCriar.innerHTML = `<p style="color: red; font-weight: bold; white-space: pre-wrap;">❌ Erro: ${errorMessage}</p>`;
-            }
-        } catch (error) {
-            console.error('Erro de conexão:', error);
-            mensagemCriar.innerHTML = `<p style="color: red;">⚠️ Erro de rede: Verifique a conexão com o servidor.</p>`;
-        }
-    });
+                mensagemCriar.innerHTML = `<p style="color: red; font-weight: bold; white-space: pre-wrap;">❌ Erro: ${errorMessage}</p>`;
+            }
+        } catch (error) {
+            // Tratamento de Erro de Conexão/Rede
+            console.error('Erro de conexão:', error);
+            const displayError = error.message || error.toString() || 'Verifique a conexão com o servidor.';
+            mensagemCriar.innerHTML = `<p style="color: red;">⚠️ Erro de rede: ${displayError}</p>`;
+        }
+    });
 });
 </script>
 </body>
