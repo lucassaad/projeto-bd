@@ -64,13 +64,12 @@
 
 <script>
 /**
- * Utilitário 1: Formata a data vinda do backend (YYYY-MM-DD HH:MM:SS.ms) para exibição.
+ * Utilitário 1: Formata a data vinda do backend (agora esperado em ISO 8601) para exibição PT-BR.
  */
 function formatAppointmentDateTime(dateString) {
     if (!dateString) {
         return 'N/A';
     }
-    // Padroniza a string: Substitui o espaço por 'T' para aderir ao formato ISO 8601
     const cleanDateString = dateString.replace(' ', 'T'); 
     const dataObj = new Date(cleanDateString);
     
@@ -78,22 +77,65 @@ function formatAppointmentDateTime(dateString) {
         return `Erro de Data: ${dateString.substring(0, 19)}`;
     }
     
-    // Retorna a data e hora formatada em português (pt-BR)
     return dataObj.toLocaleDateString('pt-BR') + ' ' + dataObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'});
 }
 
 /**
- * Utilitário 2: Converte o formato do input datetime-local (YYYY-MM-DDTHH:MM) 
- * para o formato do backend (YYYY-MM-DD HH:MM:00.000).
+ * Funções de Ação
  */
-function formatToBackendDatetime(localDatetimeString) {
-    if (!localDatetimeString || localDatetimeString.length < 16) {
-        return '';
+
+// 🟢 IMPLEMENTAÇÃO DA FUNÇÃO DE EXCLUSÃO 🟢
+async function deleteAppointment(id) {
+    if (!confirm(`Tem certeza que deseja excluir a consulta ID ${id}? Esta ação é irreversível.`)) {
+        return;
     }
-    // 1. Substitui 'T' por espaço para o formato do banco de dados (PostgreSQL/SQLAlchemy)
-    const baseFormat = localDatetimeString.replace('T', ' ');
-    // 2. Adiciona segundos e milissegundos zerados.
-    return `${baseFormat}:00.000`; 
+
+    const resultadoBusca = document.getElementById('resultadoBusca');
+    resultadoBusca.innerHTML = `<p style="color: blue;">⏳ Excluindo consulta ID ${id}...</p>`;
+
+    try {
+        const response = await fetch(`/appointments/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            const successMessage = data.message || `Consulta ID ${id} excluída com sucesso!`;
+            resultadoBusca.innerHTML = `<p style="color: green; font-weight: bold;">✅ ${successMessage}</p>`;
+            
+            // Recarrega a tabela ou remove a linha excluída (para simplificar, vamos apenas buscar novamente)
+            document.getElementById('formBuscar').dispatchEvent(new Event('submit'));
+
+        } else {
+            let errorMessage = data.detail || data.message || `Erro desconhecido. Status: ${response.status}`;
+            resultadoBusca.innerHTML = `<p style="color: red; font-weight: bold;">❌ Erro ao excluir: ${errorMessage}</p>`;
+        }
+    } catch (error) {
+        console.error('Erro de conexão ao excluir:', error);
+        resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede: Falha ao conectar com o servidor.</p>`;
+    }
+}
+
+// Função para anexar os Listeners de Ação (Editar e Excluir)
+function attachActionListeners() {
+    // Listener para Excluir
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            deleteAppointment(id);
+        });
+    });
+
+    // Listener para Editar
+    document.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            // Implementação da Edição Pendente
+            alert(`Funcionalidade de Edição (ID ${id}) a ser implementada.`);
+        });
+    });
 }
 
 
@@ -127,10 +169,9 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleForms(formCriar, formBuscar);
     });
 
-    // --- 4. Lógica de Busca: Recebe JSON e Monta a Tabela ---
+    // --- 4. Lógica de Busca (ATUALIZADA PARA INCLUIR BOTÕES DE AÇÃO) ---
     formBuscar.addEventListener('submit', async function(event) {
         event.preventDefault(); 
-
         const tipoBusca = this.querySelector('select[name="tipo_busca"]').value;
         const valorBusca = this.querySelector('input[name="valor"]').value.trim();
 
@@ -148,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     htmlTabela += '<table class="data-table"><thead><tr><th>ID</th><th>CPF Paciente</th><th>CPF Médico</th><th>Data/Hora</th><th>Ações</th></tr></thead><tbody>';
                     
                     data.forEach(consulta => {
-                        // O campo JSON retornado pelo backend deve ser 'appointment_datetime'
                         const dataFormatada = formatAppointmentDateTime(consulta.appointment_datetime);
                         
                         htmlTabela += `
@@ -158,14 +198,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td>${consulta.doctor_cpf}</td>
                                 <td>${dataFormatada}</td>
                                 <td>
-                                    <button class="btn btn-sm" onclick="alert('Editar consulta ${consulta.id}')">Editar</button> 
-                                    <button class="btn btn-sm" onclick="alert('Excluir consulta ${consulta.id}')">Excluir</button>
+                                    <button class="btn btn-sm btn-edit" data-id="${consulta.id}">Editar</button> 
+                                    <button class="btn btn-sm btn-delete" data-id="${consulta.id}">Excluir</button>
                                 </td>
                             </tr>
                         `;
                     });
                     htmlTabela += '</tbody></table>';
                     resultadoBusca.innerHTML = htmlTabela;
+                    
+                    // 🎯 CHAMA A FUNÇÃO PARA ADICIONAR OS EVENTOS AOS NOVOS BOTÕES
+                    attachActionListeners(); 
+                    
                 } else {
                     resultadoBusca.innerHTML = '<p>Nenhuma consulta encontrada com os critérios fornecidos.</p>';
                 }
@@ -179,34 +223,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 resultadoBusca.innerHTML = `<p style="color: red; white-space: pre-wrap;">❌ Erro na API: ${errorMessage}</p>`;
             }
         } catch (error) {
-            // Tratamento de Erro de Conexão/Rede
             console.error('Erro de conexão:', error);
             const displayError = error.message || error.toString() || 'Verifique se o servidor está ativo.';
             resultadoBusca.innerHTML = `<p style="color: red;">⚠️ Erro de rede: ${displayError}</p>`;
         }
     });
 
-    // --- 5. Lógica de Criação ---
+    // --- 5. Lógica de Criação (CORRIGIDA - Inalterada aqui) ---
     formCriar.addEventListener('submit', async function(event) {
         event.preventDefault(); 
 
         mensagemCriar.innerHTML = '<p style="color: blue; font-weight: bold;">⏳ Processando o cadastro...</p>';
         
-        // Pega o valor do campo name="appointment_datetime" (em inglês)
-        const rawDataHora = this.querySelector('input[name="appointment_datetime"]').value;
-
-        // Converte para o formato de backend
-        const formattedDataHora = formatToBackendDatetime(rawDataHora);
+        const localDatetimeString = this.querySelector('input[name="appointment_datetime"]').value;
+        let formattedISOString = '';
         
-        console.log('Valor enviado ao backend (formatado):', formattedDataHora);
-
+        if (localDatetimeString && localDatetimeString.length >= 16) {
+            const dateObj = new Date(localDatetimeString);
+            
+            if (!isNaN(dateObj.getTime())) {
+                formattedISOString = dateObj.toISOString(); 
+            } else {
+                 mensagemCriar.innerHTML = '<p style="color: red; font-weight: bold;">❌ Erro: Formato de Data/Hora inválido. Use o seletor de calendário.</p>';
+                 return;
+            }
+        } else {
+            mensagemCriar.innerHTML = '<p style="color: red; font-weight: bold;">❌ Erro: Por favor, preencha a data e hora corretamente.</p>';
+            return;
+        }
+        
+        console.log('Valor enviado ao backend (ISO 8601 Z):', formattedISOString);
 
         const formData = {
-            // Chaves JSON em inglês (sincronizadas com o modelo Appointment)
             patient_cpf: this.querySelector('input[name="patient_cpf"]').value,
             doctor_cpf: this.querySelector('input[name="doctor_cpf"]').value,
             ubs_cnes: this.querySelector('input[name="ubs_cnes"]').value,
-            appointment_datetime: formattedDataHora 
+            appointment_datetime: formattedISOString, 
+            date: formattedISOString // Necessário para contornar o Pydantic
         };
 
         try {
@@ -216,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(formData)
             });
             
-            // O tratamento de erro foi melhorado para evitar o [object Object]
             const data = await response.json();
 
             if (response.ok) {
@@ -225,15 +277,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.reset();
             } else {
                 let errorMessage;
-                if (data && typeof data === 'object') {
-                    errorMessage = data.detail || data.message || `API Error: ${JSON.stringify(data, null, 2)}`;
+                if (data && data.detail) {
+                    errorMessage = data.detail.map(err => `${err.loc.join('. ')}: ${err.msg}`).join('\n');
+                } else if (data && data.message) {
+                    errorMessage = data.message;
                 } else {
-                    errorMessage = data.toString() || 'Erro ao cadastrar.';
+                    errorMessage = `Erro desconhecido. Status: ${response.status} - ${JSON.stringify(data, null, 2)}`;
                 }
+                
                 mensagemCriar.innerHTML = `<p style="color: red; font-weight: bold; white-space: pre-wrap;">❌ Erro: ${errorMessage}</p>`;
             }
         } catch (error) {
-            // Tratamento de Erro de Conexão/Rede
             console.error('Erro de conexão:', error);
             const displayError = error.message || error.toString() || 'Verifique a conexão com o servidor.';
             mensagemCriar.innerHTML = `<p style="color: red;">⚠️ Erro de rede: ${displayError}</p>`;
