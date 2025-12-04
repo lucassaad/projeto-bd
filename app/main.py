@@ -27,23 +27,23 @@ app = FastAPI()
 
 app.include_router(user.router)
 app.include_router(appointment.router)
-app.include_router(nurse_ubs.router)
-app.include_router(nurse_specialty.router)
-app.include_router(patient_ubs.router)
-app.include_router(nurse_ubs.router)
+# app.include_router(nurse_ubs.router)
+# app.include_router(nurse_specialty.router)
+# app.include_router(patient_ubs.router)
+# app.include_router(nurse_ubs.router)
 app.include_router(nurse.router)
 app.include_router(patient.router)
-app.include_router(doctor_specialty.router)
-app.include_router(doctor_ubs.router)
+# app.include_router(doctor_specialty.router)
+# app.include_router(doctor_ubs.router)
 app.include_router(doctor.router)
 app.include_router(ubs.router)
-app.include_router(specialty.router)
-app.include_router(vaccine.router)
-app.include_router(exam.router)
-app.include_router(prescription.router)
-app.include_router(medication_prescription.router)
-app.include_router(medication.router)
-app.include_router(detailed_appointments.router)
+# app.include_router(specialty.router)
+# app.include_router(vaccine.router)
+# app.include_router(exam.router)
+# app.include_router(prescription.router)
+# app.include_router(medication_prescription.router)
+# app.include_router(medication.router)
+# app.include_router(detailed_appointments.router)
 
 # Templates
 templates = Jinja2Templates(directory="app/templates")
@@ -82,7 +82,7 @@ def register_page(request: Request):
 
 # Register page
 @app.get("/appointments", response_class=HTMLResponse)
-def register_page(request: Request):
+def appointments_page(request: Request):
     return templates.TemplateResponse(
         "appointments.html",
         {"request": request}
