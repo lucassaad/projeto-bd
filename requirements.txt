@@ -4,6 +4,7 @@ psycopg2-binary
 pydantic 
 pydantic[email]
 pydantic-settings
+python-multipart
 ruff
 SQLAlchemy
 uvicorn
