@@ -1,3 +1,7 @@
+from psycopg2 import errors
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -131,6 +135,7 @@ def update_doctor(doctor_info: DoctorUpdate, cpf: str, session: Session):
     if result is None:
         return None
 
+
     session.execute(
         text("""
             UPDATE "doctor" 
@@ -154,14 +159,29 @@ def delete_doctor_db(cpf: str, session: Session):
     if result is None:
         return None
 
-    session.execute(
-        text("""
-            DELETE FROM "doctor"
-            WHERE cpf = :cpf
-        """),
-        {'cpf': cpf},
-    )
+    try:
+        session.execute(
+            text("""
+                DELETE FROM "doctor"
+                WHERE cpf = :cpf
+            """),
+            {'cpf': cpf},
+        )
 
-    session.commit()
+        session.commit()
+
+    except IntegrityError as e:
+            session.rollback()
+
+            if isinstance(e.orig, errors.ForeignKeyViolation):
+                raise HTTPException(409, "Foreign key constraint violated")
+
+            if isinstance(e.orig, errors.UniqueViolation):
+                raise HTTPException(409, "Duplicate value")
+
+            if isinstance(e.orig, errors.NotNullViolation):
+                raise HTTPException(400, "Required field is missing")
+
+            raise HTTPException(400, "Database constraint error")
 
     return result

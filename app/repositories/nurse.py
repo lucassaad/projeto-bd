@@ -1,6 +1,8 @@
+from psycopg2 import errors
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-
 from app.schemas.nurse import NurseIn, NurseUpdate
 
 def create_nurse(nurse: NurseIn, session: Session):
@@ -138,18 +140,34 @@ def update_nurse(nurse_update: NurseUpdate, cpf: str, session: Session):
     if result is None:
         return None
     
-    session.execute(
-        text("""
-            UPDATE nurse
-            SET 
-                coren = :coren,
-                cpf = :cpf
-            WHERE cpf = :cpf
-        """),
-        {**nurse_update.model_dump(), "cpf": cpf},
-    )
+    try: 
+        session.execute(
+            text("""
+                UPDATE nurse
+                SET 
+                    coren = :coren,
+                    cpf = :cpf
+                WHERE cpf = :cpf
+            """),
+            {**nurse_update.model_dump(), "cpf": cpf},
+        )
 
-    session.commit()
+        session.commit()
+
+    except IntegrityError as e:
+        session.rollback()
+
+        if isinstance(e.orig, errors.ForeignKeyViolation):
+            raise HTTPException(409, "Foreign key constraint violated")
+
+        if isinstance(e.orig, errors.UniqueViolation):
+            raise HTTPException(409, "Duplicate value")
+
+        if isinstance(e.orig, errors.NotNullViolation):
+            raise HTTPException(400, "Required field is missing")
+
+        raise HTTPException(400, "Database constraint error")
+
 
     return select_nurse_by_cpf(cpf, session)
 

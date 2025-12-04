@@ -1,7 +1,10 @@
-from sqlalchemy import text
+from sqlalchemy import text, select
 from sqlalchemy.orm import Session
 
 from app.schemas.user import UserIn, UserUpdate
+from app.models.user import User
+
+from fastapi import HTTPException, Response,  UploadFile, File
 
 
 def create_user(user: UserIn, session: Session):
@@ -159,3 +162,36 @@ def delete_user_db(id: int, session: Session):
     session.commit()
 
     return dict(user)
+
+
+def select_user_photo(id: int, session: Session):
+    user = session.scalar(select(User).where(User.id == id))
+
+    if not user or not user.image:
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    return Response(content=user.image, media_type="image/png")
+
+
+async def insert_user_photo(
+    user_id: int,
+    session: Session,
+    file: UploadFile = File(...),
+):
+    if file.content_type is None or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Invalid file type")
+
+    # Limite de 2MB, por exemplo
+    content = await file.read()
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large")
+
+    user = session.scalar(select(User).where(User.id == user_id))
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.image = content
+    session.commit()
+
+    return {"message": "Photo uploaded successfully"}
