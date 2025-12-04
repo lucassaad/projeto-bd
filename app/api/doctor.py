@@ -10,9 +10,11 @@ from app.repositories.doctor import (
     select_doctor_by_cpf,
     update_doctor,
     delete_doctor_db,
-    select_all_doctors
+    select_all_doctors,
+    select_view
 )
 from app.schemas.doctor import DoctorUpdate, DoctorIn,DoctorOut
+from app.schemas.view import ViewOut
 
 router = APIRouter(prefix='/doctor', tags=['Doctor'])
 
@@ -38,6 +40,15 @@ def get_doctor_by_cpf(cpf: str, db_session: db_session):
 
     return user
 
+
+@router.get('/view', response_model=list[ViewOut], status_code=HTTPStatus.OK)
+def get_view(db_session: db_session):
+    user = select_view(db_session)
+
+    if user is None:
+        raise HTTPException(status_code=404, detail='No doctor found in this UBS')
+
+    return user
 
 
 @router.get('/all', response_model=list[DoctorOut], status_code=HTTPStatus.OK)
