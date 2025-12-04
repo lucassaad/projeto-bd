@@ -24,18 +24,22 @@ def create_user(user: UserIn, session: Session):
     if existing_user is not None:
         return None
 
-    session.execute(
-        text("""
-            INSERT INTO "user"
-            (cpf, name, phone_number, birthdate, email, password)
-            VALUES
-            (:cpf, :name, :phone_number, :birthdate, :email, :password)
-        """),
-        user.model_dump(),
-    )
+    try:
+        session.execute(
+            text("""
+                INSERT INTO "user"
+                (cpf, name, phone_number, birthdate, email, password)
+                VALUES
+                (:cpf, :name, :phone_number, :birthdate, :email, :password)
+            """),
+            user.model_dump(),
+        )
 
-    session.commit()
-
+        session.commit()
+    
+    except Exception as e:
+        session.rollback()
+        return "email"
     db_user = (
         session.execute(
             text("""

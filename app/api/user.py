@@ -52,6 +52,10 @@ def autenticate_user(cpf: str, password: str, db_session: db_session):
 @router.post('/', response_model=UserOut, status_code=HTTPStatus.CREATED)
 def post_user(user_in: UserIn, session: db_session):
     user = create_user(user_in, session)
+    if user == "email": 
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT, detail='Email already exists'
+        )
     if user is None:
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT, detail='CPF already exists'
