@@ -5,6 +5,25 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.models.registry import table_registry
+from app.models import (
+    appointment,
+    doctor,
+    doctor_specialty,
+    doctor_ubs,
+    exam,
+    medication,
+    medication_prescription,
+    nurse,
+    nurse_specialty,
+    nurse_ubs,
+    patient,
+    patient_ubs,
+    prescription,
+    specialty,
+    ubs,
+    user,
+    vaccine,
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
