@@ -185,3 +185,30 @@ def delete_doctor_db(cpf: str, session: Session):
             raise HTTPException(400, "Database constraint error")
 
     return result
+
+
+def select_view(session: Session):
+    result = (
+        session.execute(
+            text("""
+            SELECT * FROM v_all_users_with_role;
+        """)
+        )
+        .mappings()
+        .all()
+    )
+
+    if result is None:
+        return None
+
+    return [
+        {   
+            "cpf": row["cpf"],
+            "name": row["name"],
+            "email": row["email"],
+            "phone_number": row["phone_number"],
+            "role": row["role"],
+            "specialty_name": row["specialty_name"]
+        }
+        for row in result
+    ]  
