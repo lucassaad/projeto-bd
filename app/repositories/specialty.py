@@ -68,7 +68,9 @@ def select_all_specialty(session: Session):
     return specialty
 
 
-def update_specialty(specialty_info: SpecialtyUpdate, code: int, session: Session):
+def update_specialty(
+    specialty_info: SpecialtyUpdate, code: int, session: Session
+):
 
     specialty = (
         session.execute(
@@ -77,7 +79,9 @@ def update_specialty(specialty_info: SpecialtyUpdate, code: int, session: Sessio
             WHERE  code = :code
         """),
             {'code': code},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     if specialty is None:

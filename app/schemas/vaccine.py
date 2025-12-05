@@ -1,4 +1,4 @@
-from pydantic import BaseModel   
+from pydantic import BaseModel
 
 
 class vaccineBase(BaseModel):
@@ -14,7 +14,7 @@ class VaccineIn(vaccineBase):
 
 
 class VaccineOut(vaccineBase):
-    message : str
+    message: str
 
 
 class VaccineUpdate(BaseModel):
@@ -23,4 +23,3 @@ class VaccineUpdate(BaseModel):
     description: str | None = None
     patient_cpf: str | None = None
     nurse_cpf: str | None = None
-    

@@ -5,15 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_session
-from app.schemas.ubs import UbsIn, UbsOut, UbsUpdate
 from app.repositories.ubs import (
     create_ubs,
-    select_all_ubs,
     delete_ubs_db,
+    select_all_ubs,
     select_ubs,
-    update_ubs
+    update_ubs,
 )
-
+from app.schemas.ubs import UbsIn, UbsOut, UbsUpdate
 
 router = APIRouter(prefix='/ubs', tags=['Ubs'])
 db_session = Annotated[Session, Depends(get_session)]

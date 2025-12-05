@@ -1,10 +1,9 @@
-from sqlalchemy import text, select
+from fastapi import File, HTTPException, Response, UploadFile
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from app.schemas.user import UserIn, UserUpdate
 from app.models.user import User
-
-from fastapi import HTTPException, Response,  UploadFile, File
+from app.schemas.user import UserIn, UserUpdate
 
 
 def create_user(user: UserIn, session: Session):
@@ -36,10 +35,10 @@ def create_user(user: UserIn, session: Session):
         )
 
         session.commit()
-    
-    except Exception as e:
+
+    except Exception:
         session.rollback()
-        return "email"
+        return 'email'
     db_user = (
         session.execute(
             text("""
@@ -172,9 +171,9 @@ def select_user_photo(id: int, session: Session):
     user = session.scalar(select(User).where(User.id == id))
 
     if not user or not user.image:
-        raise HTTPException(status_code=404, detail="Image not found")
+        raise HTTPException(status_code=404, detail='Image not found')
 
-    return Response(content=user.image, media_type="image/png")
+    return Response(content=user.image, media_type='image/png')
 
 
 async def insert_user_photo(
@@ -182,20 +181,20 @@ async def insert_user_photo(
     session: Session,
     file: UploadFile = File(...),
 ):
-    if file.content_type is None or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Invalid file type")
+    if file.content_type is None or not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail='Invalid file type')
 
     # Limite de 2MB, por exemplo
     content = await file.read()
     if len(content) > 2 * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="File too large")
+        raise HTTPException(status_code=413, detail='File too large')
 
     user = session.scalar(select(User).where(User.id == user_id))
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail='User not found')
 
     user.image = content
     session.commit()
 
-    return {"message": "Photo uploaded successfully"}
+    return {'message': 'Photo uploaded successfully'}

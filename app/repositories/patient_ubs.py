@@ -1,7 +1,11 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.patient_ubs import Patient_ubsIn, Patient_ubsOut, Patient_ubsUpdate
+from app.schemas.patient_ubs import (
+    Patient_ubsIn,
+    Patient_ubsUpdate,
+)
+
 
 def create_patient_ubs(patient_ubs: Patient_ubsIn, session: Session):
     existing_patient_ubs = (
@@ -10,7 +14,10 @@ def create_patient_ubs(patient_ubs: Patient_ubsIn, session: Session):
             SELECT * FROM patient_ubs
             WHERE patient_cpf = :patient_cpf AND ubs_cnes = :ubs_cnes)
         """),
-            {'patient_cpf': patient_ubs.patient_cpf, 'ubs_cnes': patient_ubs.ubs_cnes},
+            {
+                'patient_cpf': patient_ubs.patient_cpf,
+                'ubs_cnes': patient_ubs.ubs_cnes,
+            },
         )
         .mapping()
         .first()
@@ -18,7 +25,7 @@ def create_patient_ubs(patient_ubs: Patient_ubsIn, session: Session):
 
     if existing_patient_ubs is not None:
         return None
-    
+
     session.execute(
         text("""
              INSERT INTO patient_ubs
@@ -26,7 +33,7 @@ def create_patient_ubs(patient_ubs: Patient_ubsIn, session: Session):
              VALUES
             (:patient_cpf, :ubs_cnes)
     """),
-    patient_ubs.model_dump(),
+        patient_ubs.model_dump(),
     )
     session.commit()
 
@@ -36,13 +43,17 @@ def create_patient_ubs(patient_ubs: Patient_ubsIn, session: Session):
             SELECT * FROM patient_ubs
             WHERE patient_cpf = :patient_cpf AND ubs_cnes = :ubs_cnes
         """),
-            {'patient_cpf': patient_ubs.patient_cpf, 'ubs_cnes': patient_ubs.ubs_cnes},
+            {
+                'patient_cpf': patient_ubs.patient_cpf,
+                'ubs_cnes': patient_ubs.ubs_cnes,
+            },
         )
         .mappings()
         .first()
     )
 
     return db_patient_ubs
+
 
 def select_patient_ubs_by_cpf(patient_cpf: str, session: Session):
     patient_ubs = (
@@ -62,6 +73,7 @@ def select_patient_ubs_by_cpf(patient_cpf: str, session: Session):
 
     return patient_ubs
 
+
 def select_patient_ubs_by_cnes(ubs_cnes: str, session: Session):
     patient_ubs = (
         session.execute(
@@ -80,6 +92,7 @@ def select_patient_ubs_by_cnes(ubs_cnes: str, session: Session):
 
     return patient_ubs
 
+
 def select_all_patient_ubs(session: Session):
     patient_ubs = (
         session.execute(
@@ -95,7 +108,10 @@ def select_all_patient_ubs(session: Session):
 
     return patients_ubs
 
-def update_patient_ubs(patient_ubs_info: Patient_ubsUpdate, id: int, session: Session):
+
+def update_patient_ubs(
+    patient_ubs_info: Patient_ubsUpdate, id: int, session: Session
+):
 
     patient_ubs = (
         session.execute(
@@ -119,7 +135,7 @@ def update_patient_ubs(patient_ubs_info: Patient_ubsUpdate, id: int, session: Se
             ubs_cnes = :ubs_cnes
             WHERE id = :id
         """),
-        { **patient_ubs_info.model_dump(), 'id': id},
+        {**patient_ubs_info.model_dump(), 'id': id},
     )
 
     session.commit()
@@ -137,6 +153,7 @@ def update_patient_ubs(patient_ubs_info: Patient_ubsUpdate, id: int, session: Se
     )
 
     return updated_patient_ubs
+
 
 def delete_patient_ubs(id: int, session: Session):
     patient_ubs = (

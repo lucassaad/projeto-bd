@@ -1,11 +1,11 @@
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-
-from psycopg2 import errors
-
 from fastapi import HTTPException
-from app.schemas.patient import PatientIn, PatientOut, PatientUpdate
+from psycopg2 import errors
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from app.schemas.patient import PatientIn
+
 
 def create_patient(patient: PatientIn, session: Session):
     existing_patient = (
@@ -15,12 +15,14 @@ def create_patient(patient: PatientIn, session: Session):
                 WHERE cpf = :cpf
             """),
             {'cpf': patient.cpf},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     if existing_patient is not None:
         return None
-    
+
     session.execute(
         text("""
              INSERT INTO patient
@@ -34,6 +36,7 @@ def create_patient(patient: PatientIn, session: Session):
     session.commit()
 
     return select_patient_by_cpf(patient.cpf, session)
+
 
 def select_patient_by_cpf(patient_cpf: str, session: Session):
     result = (
@@ -52,28 +55,31 @@ def select_patient_by_cpf(patient_cpf: str, session: Session):
             WHERE p.cpf = :patient_cpf
         """),
             {'patient_cpf': patient_cpf},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
-    
+
     if result is None:
         return None
 
     return {
-            "cpf": result["patient_cpf"],
-            "user": {
-                "id": result['user_id'],
-                "cpf": result["user_cpf"],
-                "name": result["name"],
-                "phone_number": result["phone_number"],
-                "birthdate": result["birthdate"],
-                "email": result["email"]
-            }
-        }
-    
+        'cpf': result['patient_cpf'],
+        'user': {
+            'id': result['user_id'],
+            'cpf': result['user_cpf'],
+            'name': result['name'],
+            'phone_number': result['phone_number'],
+            'birthdate': result['birthdate'],
+            'email': result['email'],
+        },
+    }
+
 
 def select_all_patients(session: Session):
-    result = session.execute(
-        text("""
+    result = (
+        session.execute(
+            text("""
             SELECT 
                 p.cpf AS patient_cpf,
                 u.id AS user_id,
@@ -85,19 +91,22 @@ def select_all_patients(session: Session):
             FROM patient p
             JOIN "user" u ON u.cpf = p.cpf
         """)
-    ).mappings().all()
+        )
+        .mappings()
+        .all()
+    )
 
     return [
         {
-            "cpf": row["patient_cpf"],
-            "user": {
-                "id": row['user_id'],
-                "cpf": row["user_cpf"],
-                "name": row["name"],
-                "phone_number": row["phone_number"],
-                "birthdate": row["birthdate"],
-                "email": row["email"]
-            }
+            'cpf': row['patient_cpf'],
+            'user': {
+                'id': row['user_id'],
+                'cpf': row['user_cpf'],
+                'name': row['name'],
+                'phone_number': row['phone_number'],
+                'birthdate': row['birthdate'],
+                'email': row['email'],
+            },
         }
         for row in result
     ]
@@ -116,7 +125,7 @@ def select_all_patients(session: Session):
 
 #     if patient is None:
 #         return None
-    
+
 #     session.execute(
 #         text("""
 #         UPDATE patient
@@ -129,14 +138,14 @@ def select_all_patients(session: Session):
 
 #     return select_patient_by_cpf(patient.cpf, session)
 
+
 def delete_patient(cpf: str, session: Session):
     result = select_patient_by_cpf(cpf, session)
-    
+
     if result is None:
         return None
 
     try:
-
         session.execute(
             text("""
                 DELETE FROM patient
@@ -150,15 +159,14 @@ def delete_patient(cpf: str, session: Session):
         session.rollback()
 
         if isinstance(e.orig, errors.ForeignKeyViolation):
-            raise HTTPException(409, "Foreign key constraint violated")
+            raise HTTPException(409, 'Foreign key constraint violated')
 
         if isinstance(e.orig, errors.UniqueViolation):
-            raise HTTPException(409, "Duplicate value")
+            raise HTTPException(409, 'Duplicate value')
 
         if isinstance(e.orig, errors.NotNullViolation):
-            raise HTTPException(400, "Required field is missing")
+            raise HTTPException(400, 'Required field is missing')
 
-        raise HTTPException(400, "Database constraint error")
-
+        raise HTTPException(400, 'Database constraint error')
 
     return result

@@ -1,16 +1,16 @@
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
-from app.schemas.doctor_specialty import DoctorSpecialtyIn, DoctorSpecialtyOut, DoctorSpecialtyBase
-
-
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import text
-from sqlalchemy.orm import Session
 from psycopg2.errors import ForeignKeyViolation
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from app.schemas.doctor_specialty import (
+    DoctorSpecialtyIn,
+)
 
 
-def create_doctor_specialty(doctor_specialty_in: DoctorSpecialtyIn, session: Session):
+def create_doctor_specialty(
+    doctor_specialty_in: DoctorSpecialtyIn, session: Session
+):
 
     # Verificar duplicado
     existing = (
@@ -21,16 +21,16 @@ def create_doctor_specialty(doctor_specialty_in: DoctorSpecialtyIn, session: Ses
                 WHERE doctor_cpf = :cpf AND specialty_code = :specialty_code
             """),
             {
-                "cpf": doctor_specialty_in.doctor_cpf,
-                "specialty_code": doctor_specialty_in.specialty_code
-            }
+                'cpf': doctor_specialty_in.doctor_cpf,
+                'specialty_code': doctor_specialty_in.specialty_code,
+            },
         )
         .mappings()
         .first()
     )
 
     if existing:
-        return {"error": "This doctor already has this specialty."}
+        return {'error': 'This doctor already has this specialty.'}
 
     # Tentar inserir
     try:
@@ -39,7 +39,7 @@ def create_doctor_specialty(doctor_specialty_in: DoctorSpecialtyIn, session: Ses
                 INSERT INTO doctor_specialty (doctor_cpf, specialty_code)
                 VALUES (:doctor_cpf, :specialty_code)
             """),
-            doctor_specialty_in.model_dump()
+            doctor_specialty_in.model_dump(),
         )
         session.commit()
 
@@ -62,16 +62,15 @@ def create_doctor_specialty(doctor_specialty_in: DoctorSpecialtyIn, session: Ses
                 WHERE doctor_cpf = :cpf AND specialty_code = :specialty_code
             """),
             {
-                "cpf": doctor_specialty_in.doctor_cpf,
-                "specialty_code": doctor_specialty_in.specialty_code
-            }
+                'cpf': doctor_specialty_in.doctor_cpf,
+                'specialty_code': doctor_specialty_in.specialty_code,
+            },
         )
         .mappings()
         .first()
     )
 
     return db_row
-
 
 
 def select_specialty_by_doctor(cpf: str, session: Session):
@@ -99,7 +98,7 @@ def select_doctor_by_specialty(code: int, session: Session):
             text("""
             SELECT * FROM "doctor_specialty"
             WHERE specialty_code = :code
-        """), 
+        """),
             {'code': code},
         )
         .mappings()
@@ -127,7 +126,9 @@ def get_all_doctor_specialties(session: Session):
     return users
 
 
-def update_doctor_specialty(doctor_specialty_info: DoctorSpecialtyIn, id: int, session: Session):
+def update_doctor_specialty(
+    doctor_specialty_info: DoctorSpecialtyIn, id: int, session: Session
+):
 
     user = (
         session.execute(

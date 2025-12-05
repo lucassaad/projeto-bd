@@ -1,13 +1,11 @@
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
-from app.schemas.doctor_ubs import Doctor_ubsIn, Doctor_ubsOut, Doctor_ubsBase, Doctor_ubsUpdate
-
-
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import text
-from sqlalchemy.orm import Session
 from psycopg2.errors import ForeignKeyViolation
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from app.schemas.doctor_ubs import (
+    Doctor_ubsIn,
+)
 
 
 def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
@@ -20,17 +18,16 @@ def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
                 FROM "doctor_ubs"
                 WHERE doctor_cpf = :cpf AND ubs_cnes = :cnes
             """),
-            {
-                "cpf": doctor_ubs_in.doctor_cpf,
-                "cnes": doctor_ubs_in.cnes_ubs
-            }
+            {'cpf': doctor_ubs_in.doctor_cpf, 'cnes': doctor_ubs_in.cnes_ubs},
         )
         .mappings()
         .first()
     )
 
     if existing:
-        return {"error": "There is already an association between this doctor and UBS."}
+        return {
+            'error': 'There is already an association between this doctor and UBS.'
+        }
 
     # Tentar inserir
     try:
@@ -39,7 +36,7 @@ def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
                 INSERT INTO doctor_ubs (doctor_cpf, ubs_cnes)
                 VALUES (:doctor_cpf, :cnes_ubs)
             """),
-            doctor_ubs_in.model_dump()
+            doctor_ubs_in.model_dump(),
         )
         session.commit()
 
@@ -61,17 +58,13 @@ def create_doctor_ubs(doctor_ubs_in: Doctor_ubsIn, session: Session):
                 FROM doctor_ubs
                 WHERE doctor_cpf = :cpf AND ubs_cnes = :cnes
             """),
-            {
-                "cpf": doctor_ubs_in.doctor_cpf,
-                "cnes": doctor_ubs_in.cnes_ubs
-            }
+            {'cpf': doctor_ubs_in.doctor_cpf, 'cnes': doctor_ubs_in.cnes_ubs},
         )
         .mappings()
         .first()
     )
 
     return db_row
-
 
 
 def select_ubs_by_doctor(cpf: str, session: Session):
@@ -99,7 +92,7 @@ def select_doctor_by_ubs(cnes: str, session: Session):
             text("""
             SELECT * FROM "doctor_ubs"
             WHERE ubs_cnes = :cnes
-        """), 
+        """),
             {'cnes': cnes},
         )
         .mappings()
@@ -127,7 +120,9 @@ def get_all_doctor_ubs(session: Session):
     return users
 
 
-def update_doctor_ubs(doctor_ubs_info: Doctor_ubsIn, id: int, session: Session):
+def update_doctor_ubs(
+    doctor_ubs_info: Doctor_ubsIn, id: int, session: Session
+):
 
     user = (
         session.execute(

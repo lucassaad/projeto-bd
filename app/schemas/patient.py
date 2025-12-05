@@ -2,8 +2,9 @@ from pydantic import BaseModel, Field
 
 from app.schemas.user import UserOut
 
+
 class PatientBase(BaseModel):
-    cpf : str = Field(
+    cpf: str = Field(
         ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
     )
 
@@ -15,5 +16,6 @@ class PatientIn(PatientBase):
 class PatientOut(PatientBase):
     user: UserOut
 
+
 class PatientUpdate(BaseModel):
-    cpf : str | None = None
+    cpf: str | None = None

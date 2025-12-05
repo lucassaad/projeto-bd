@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class DoctorSpecialtyBase(BaseModel):
@@ -15,6 +13,5 @@ class DoctorSpecialtyIn(DoctorSpecialtyBase):
 
 
 class DoctorSpecialtyOut(DoctorSpecialtyBase):
-    id: int | None = None  
+    id: int | None = None
     pass
-    

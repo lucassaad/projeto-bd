@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel   
+from pydantic import BaseModel
 
 
 class PrescriptionBase(BaseModel):
@@ -9,15 +9,15 @@ class PrescriptionBase(BaseModel):
     ubs_cnes: str
     date: datetime
     description: str
-    date : datetime
-    
+    date: datetime
+
 
 class PrescriptionIn(PrescriptionBase):
     pass
 
 
 class PrescriptionOut(PrescriptionBase):
-    message : str
+    message: str
 
 
 class PrescriptionUpdate(BaseModel):
@@ -26,5 +26,4 @@ class PrescriptionUpdate(BaseModel):
     ubs_cnes: str | None = None
     date: datetime | None = None
     description: str | None = None
-    date : datetime | None = None
-    
+    date: datetime | None = None

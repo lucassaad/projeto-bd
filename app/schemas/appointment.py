@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 
 class AppointmentBase(BaseModel):
@@ -28,4 +28,3 @@ class AppointmentUpdate(AppointmentBase):
     patient_cpf: str | None = None
     ubs_cnes: str | None = None
     date: datetime | None = None
-    

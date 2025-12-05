@@ -14,8 +14,10 @@ class DoctorIn(DoctorBase):
         ..., pattern=r'^\d{11}$', description='CPF must contain 11 digits'
     )
 
+
 class DoctorOut(DoctorBase):
     user: UserOut
+
 
 class DoctorUpdate(BaseModel):
     crm: str | None = None

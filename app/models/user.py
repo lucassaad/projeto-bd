@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Date, String, LargeBinary
+from sqlalchemy import Date, LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.registry import table_registry

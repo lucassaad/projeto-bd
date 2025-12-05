@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session
 from app.db.session import get_session
 from app.repositories.doctor import (
     create_doctor,
-    select_doctor_by_cpf,
-    update_doctor,
     delete_doctor_db,
     select_all_doctors,
-    select_view
+    select_doctor_by_cpf,
+    select_view,
+    update_doctor,
 )
-from app.schemas.doctor import DoctorUpdate, DoctorIn,DoctorOut
+from app.schemas.doctor import DoctorIn, DoctorOut, DoctorUpdate
 from app.schemas.view import ViewOut
 
 router = APIRouter(prefix='/doctor', tags=['Doctor'])
@@ -26,17 +26,20 @@ def post_doctor(doctor_in: DoctorIn, session: db_session):
     user = create_doctor(doctor_in, session)
     if user is None:
         raise HTTPException(
-            status_code=HTTPStatus.CONFLICT, detail='Doctor already exists in UBS'
+            status_code=HTTPStatus.CONFLICT,
+            detail='Doctor already exists in UBS',
         )
     return user
 
 
 @router.get('/cpf', response_model=DoctorOut, status_code=HTTPStatus.OK)
 def get_doctor_by_cpf(cpf: str, db_session: db_session):
-    user =select_doctor_by_cpf(cpf, db_session)
+    user = select_doctor_by_cpf(cpf, db_session)
 
     if user is None:
-        raise HTTPException(status_code=404, detail='No doctor found in this UBS')
+        raise HTTPException(
+            status_code=404, detail='No doctor found in this UBS'
+        )
 
     return user
 
@@ -46,7 +49,9 @@ def get_view(db_session: db_session):
     user = select_view(db_session)
 
     if user is None:
-        raise HTTPException(status_code=404, detail='No doctor found in this UBS')
+        raise HTTPException(
+            status_code=404, detail='No doctor found in this UBS'
+        )
 
     return user
 

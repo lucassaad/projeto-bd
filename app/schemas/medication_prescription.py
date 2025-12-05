@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from pydantic import BaseModel   
+from pydantic import BaseModel
 
 
 class Medication_preBase(BaseModel):
@@ -13,10 +11,9 @@ class Medication_preIn(Medication_preBase):
 
 
 class Medication_preOut(Medication_preBase):
-    id : int | None = None
+    id: int | None = None
     pass
 
 
 class Medication_preUpdate(BaseModel):
     pass
-    

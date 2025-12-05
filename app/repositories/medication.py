@@ -1,6 +1,7 @@
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
 from app.schemas.medication import MedicationIn, MedicationUpdate
 
 
@@ -33,9 +34,9 @@ def create_Medication(Medication: MedicationIn, session: Session):
         )
 
         session.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         session.rollback()
-        return None 
+        return None
 
     db_Medication = (
         session.execute(
@@ -87,7 +88,9 @@ def select_all_Medications(session: Session):
     return Medications
 
 
-def update_Medication(Medication_info: MedicationUpdate, code: str, session: Session):
+def update_Medication(
+    Medication_info: MedicationUpdate, code: str, session: Session
+):
 
     Medication = (
         session.execute(

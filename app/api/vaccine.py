@@ -10,7 +10,7 @@ from app.repositories.vaccine import (
     delete_vaccine_db,
     select_all_vaccines,
     select_vaccine,
-    update_vaccine
+    update_vaccine,
 )
 from app.schemas.vaccine import VaccineIn, VaccineOut, VaccineUpdate
 
@@ -45,7 +45,9 @@ def get_all_vaccines(db_session: db_session):
 
 
 @router.put('/{id}', response_model=VaccineOut, status_code=HTTPStatus.OK)
-def put_vaccine(id: int, vaccine_update: VaccineUpdate, db_session: db_session):
+def put_vaccine(
+    id: int, vaccine_update: VaccineUpdate, db_session: db_session
+):
     vaccine = update_vaccine(vaccine_update, id, db_session)
     if vaccine is None:
         raise HTTPException(status_code=404, detail='Vaccine not found')

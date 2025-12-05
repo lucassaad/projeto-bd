@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.prescription import PrescriptionIn, PrescriptionUpdate 
+from app.schemas.prescription import PrescriptionIn, PrescriptionUpdate
 
 
 def create_prescription(prescription: PrescriptionIn, session: Session):
@@ -42,7 +42,9 @@ def create_prescription(prescription: PrescriptionIn, session: Session):
                 appointment_id = :appointment_id
         """),
             {'appointment_id': prescription.appointment_id},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     return db_prescription
@@ -56,7 +58,9 @@ def select_prescription(id: str, session: Session):
             WHERE id = :id
         """),
             {'id': id},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     if prescription is None:
@@ -71,7 +75,9 @@ def select_all_prescriptions(session: Session):
             text("""
             SELECT * FROM "prescription"
         """)
-        ).mappings().fetchall()
+        )
+        .mappings()
+        .fetchall()
     )
 
     prescription = [dict(row) for row in result]
@@ -79,7 +85,9 @@ def select_all_prescriptions(session: Session):
     return prescription
 
 
-def update_prescription(prescription_info: PrescriptionUpdate, id: int, session: Session):
+def update_prescription(
+    prescription_info: PrescriptionUpdate, id: int, session: Session
+):
 
     prescription = (
         session.execute(
@@ -88,7 +96,9 @@ def update_prescription(prescription_info: PrescriptionUpdate, id: int, session:
             WHERE id = :id
         """),
             {'id': id},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     if prescription is None:
@@ -100,7 +110,11 @@ def update_prescription(prescription_info: PrescriptionUpdate, id: int, session:
                 description = :description
             WHERE id = :id
         """),
-        {**prescription_info.model_dump(), 'id': id, 'appointment_id': prescription.appointment_id},
+        {
+            **prescription_info.model_dump(),
+            'id': id,
+            'appointment_id': prescription.appointment_id,
+        },
     )
 
     session.commit()

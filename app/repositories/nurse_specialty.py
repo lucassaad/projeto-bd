@@ -1,9 +1,15 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.nurse_specialty import Nurse_specialtyIn, Nurse_specialtyOut, Nurse_specialtyUpdate
+from app.schemas.nurse_specialty import (
+    Nurse_specialtyIn,
+    Nurse_specialtyUpdate,
+)
 
-def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session):
+
+def create_nurse_specialty(
+    nurse_specialty: Nurse_specialtyIn, session: Session
+):
 
     existing_nurse_specialty = (
         session.execute(
@@ -11,7 +17,10 @@ def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session)
             SELECT * FROM nurse_specialty
             WHERE nurse_cpf = :nurse_cpf ANDspecialty = specialty
         """),
-            {'nurse_cpf': nurse_specialty.nurse_cpf, 'specialty': nurse_specialty},
+            {
+                'nurse_cpf': nurse_specialty.nurse_cpf,
+                'specialty': nurse_specialty,
+            },
         )
         .mappings()
         .first()
@@ -19,7 +28,7 @@ def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session)
 
     if existing_nurse_specialty is not None:
         return None
-    
+
     session.execute(
         text("""
             INSERT INTO nurse_specialty
@@ -38,13 +47,17 @@ def create_nurse_specialty(nurse_specialty: Nurse_specialtyIn, session: Session)
             SELECT * FROM nurse_specialty
             WHERE nurse_cpf = :nurse_cpf ANDspecialty = specialty
         """),
-            {'nurse_cpf': nurse_specialty.nurse_cpf, 'specialty': nurse_specialty},
+            {
+                'nurse_cpf': nurse_specialty.nurse_cpf,
+                'specialty': nurse_specialty,
+            },
         )
         .mapping()
         .first()
     )
 
     return db_nurse_specialty
+
 
 def select_specialty_by_nurse(nurse_cpf: str, session: Session):
     nurse_specialty = (
@@ -61,8 +74,9 @@ def select_specialty_by_nurse(nurse_cpf: str, session: Session):
 
     if nurse_specialty is None:
         return None
-    
+
     return dict(nurse_specialty)
+
 
 def select_specialty_by_name(specialty: str, session: Session):
     nurse_specialty = (
@@ -71,7 +85,7 @@ def select_specialty_by_name(specialty: str, session: Session):
             SELECT * FROM nurse_specialty
             WHEREspecialty = specialty
         """),
-            {'specialty':specialty},
+            {'specialty': specialty},
         )
         .mappings()
         .first()
@@ -79,8 +93,9 @@ def select_specialty_by_name(specialty: str, session: Session):
 
     if nurse_specialty is None:
         return None
-    
+
     return dict(nurse_specialty)
+
 
 def select_nurse_specialty_by_id(id: int, session: Session):
     nurse_specialty = (
@@ -97,8 +112,9 @@ def select_nurse_specialty_by_id(id: int, session: Session):
 
     if nurse_specialty is None:
         return None
-    
+
     return dict(nurse_specialty)
+
 
 def select_all_nurse_specialties(session: Session):
     nurse_specialities = (
@@ -113,7 +129,10 @@ def select_all_nurse_specialties(session: Session):
 
     return nurse_specialities
 
-def update_nurse_specialty(nurse_specialty_info: Nurse_specialtyUpdate, id: int, session: Session):
+
+def update_nurse_specialty(
+    nurse_specialty_info: Nurse_specialtyUpdate, id: int, session: Session
+):
     nurse_specialty = (
         session.execute(
             text("""
@@ -136,7 +155,7 @@ def update_nurse_specialty(nurse_specialty_info: Nurse_specialtyUpdate, id: int,
             specialty = :specialty
             WHERE id = :id
     """),
-    {**nurse_specialty_info.model_dump(), 'id': id},
+        {**nurse_specialty_info.model_dump(), 'id': id},
     )
 
     session.commit()
@@ -155,6 +174,7 @@ def update_nurse_specialty(nurse_specialty_info: Nurse_specialtyUpdate, id: int,
 
     return uptaded_nurse_specialty
 
+
 def delete_nurse_specialty_db(id: int, session: Session):
     nurse_specialty = (
         session.execute(
@@ -162,7 +182,7 @@ def delete_nurse_specialty_db(id: int, session: Session):
             SELECT * FROM nurse_specialty
             WHERE id = :id
         """),
-            {'id': id}, 
+            {'id': id},
         )
         .mappings()
         .first()
@@ -170,7 +190,7 @@ def delete_nurse_specialty_db(id: int, session: Session):
 
     if nurse_specialty is None:
         return None
-    
+
     session.execute(
         text("""
         DELETE FROM nurse_specialty

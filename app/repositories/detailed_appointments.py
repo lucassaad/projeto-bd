@@ -1,6 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+
 def get_detailed_appointments(session: Session):
     result = (
         session.execute(

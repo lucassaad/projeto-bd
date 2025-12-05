@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
 
 class SpecialtyBase(BaseModel):
     name: str
@@ -10,6 +11,7 @@ class SpecialtyIn(SpecialtyBase):
 
 class SpecialtyOut(SpecialtyBase):
     code: int
+
 
 class SpecialtyUpdate(BaseModel):
     pass

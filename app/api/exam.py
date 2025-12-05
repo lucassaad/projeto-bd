@@ -10,7 +10,7 @@ from app.repositories.exam import (
     delete_exam_db,
     select_all_exams,
     select_exam,
-    update_exam
+    update_exam,
 )
 from app.schemas.exam import ExamIn, ExamOut, ExamUpdate
 

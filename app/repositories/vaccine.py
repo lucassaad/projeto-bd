@@ -6,7 +6,8 @@ from app.schemas.vaccine import VaccineIn, VaccineUpdate
 
 def create_vaccine(vaccine: VaccineIn, session: Session):
 
-    existing_vaccine = session.execute(
+    existing_vaccine = (
+        session.execute(
             text("""
             SELECT * FROM "vaccine"
             WHERE 
@@ -19,11 +20,13 @@ def create_vaccine(vaccine: VaccineIn, session: Session):
             {
                 'patient_cpf': vaccine.patient_cpf,
                 'nurse_cpf': vaccine.nurse_cpf,
-                'name': vaccine.name
-
+                'name': vaccine.name,
             },
-        ).mappings().first()
-    
+        )
+        .mappings()
+        .first()
+    )
+
     if existing_vaccine is not None:
         return None
 
@@ -53,8 +56,7 @@ def create_vaccine(vaccine: VaccineIn, session: Session):
             {
                 'patient_cpf': vaccine.patient_cpf,
                 'nurse_cpf': vaccine.nurse_cpf,
-                'name': vaccine.name
-
+                'name': vaccine.name,
             },
         )
         .mappings()

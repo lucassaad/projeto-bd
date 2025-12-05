@@ -15,7 +15,10 @@ def create_exam(exam: ExamIn, session: Session):
             AND 
                 exam_type = :exam_type
         """),
-            {'appointment_id': exam.appointment_id, 'exam_type': exam.exam_type},
+            {
+                'appointment_id': exam.appointment_id,
+                'exam_type': exam.exam_type,
+            },
         )
         .mappings()
         .first()
@@ -45,8 +48,13 @@ def create_exam(exam: ExamIn, session: Session):
             AND 
                 exam_type = :exam_type
         """),
-            {'appointment_id': exam.appointment_id, 'exam_type': exam.exam_type},
-        ).mappings().first()
+            {
+                'appointment_id': exam.appointment_id,
+                'exam_type': exam.exam_type,
+            },
+        )
+        .mappings()
+        .first()
     )
 
     return db_exam
@@ -60,7 +68,9 @@ def select_exam(id: str, session: Session):
             WHERE id = :id
         """),
             {'id': id},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     if exam is None:
@@ -75,7 +85,9 @@ def select_all_exams(session: Session):
             text("""
             SELECT * FROM "exams"
         """)
-        ).mappings().fetchall()
+        )
+        .mappings()
+        .fetchall()
     )
 
     exams = [dict(row) for row in result]
@@ -92,7 +104,9 @@ def update_exam(exam_info: ExamUpdate, id: int, session: Session):
             WHERE id = :id
         """),
             {'id': id},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     if exam is None:
@@ -105,7 +119,11 @@ def update_exam(exam_info: ExamUpdate, id: int, session: Session):
                 exam_type = :exam_type
             WHERE id = :id
         """),
-        {**exam_info.model_dump(), 'id': id, 'appointment_id': exam.appointment_id},
+        {
+            **exam_info.model_dump(),
+            'id': id,
+            'appointment_id': exam.appointment_id,
+        },
     )
 
     session.commit()

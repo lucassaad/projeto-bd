@@ -1,7 +1,8 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.schemas.nurse_ubs import Nurse_ubsIn, Nurse_ubsOut, Nurse_ubsUpdate
+from app.schemas.nurse_ubs import Nurse_ubsIn, Nurse_ubsUpdate
+
 
 def create_nurse_ubs(nurse_ubs: Nurse_ubsIn, session: Session):
 
@@ -46,6 +47,7 @@ def create_nurse_ubs(nurse_ubs: Nurse_ubsIn, session: Session):
 
     return db_nurse_ubs
 
+
 def select_nurse_ubs_by_id(id: int, session: Session):
     nurse_ubs = (
         session.execute(
@@ -60,8 +62,9 @@ def select_nurse_ubs_by_id(id: int, session: Session):
 
     if nurse_ubs is None:
         return None
-    
+
     return dict(nurse_ubs)
+
 
 def select_nurse_ubs_by_nurse(nurse_cpf: str, session: Session):
     nurse_ubs = (
@@ -78,8 +81,9 @@ def select_nurse_ubs_by_nurse(nurse_cpf: str, session: Session):
 
     if nurse_ubs is None:
         return None
-    
+
     return dict(nurse_ubs)
+
 
 def select_nurse_ubs_by_ubs(ubs_cnes: str, session: Session):
     result = (
@@ -98,6 +102,7 @@ def select_nurse_ubs_by_ubs(ubs_cnes: str, session: Session):
 
     return nurses_ubs
 
+
 def select_all_nurse_ubs(session: Session):
     result = (
         session.execute(
@@ -113,7 +118,10 @@ def select_all_nurse_ubs(session: Session):
 
     return nurses_ubs
 
-def update_nurse_ubs(nurse_ubs_info: Nurse_ubsUpdate, id: int, session: Session):
+
+def update_nurse_ubs(
+    nurse_ubs_info: Nurse_ubsUpdate, id: int, session: Session
+):
 
     nurse_ubs = (
         session.execute(
@@ -158,6 +166,7 @@ def update_nurse_ubs(nurse_ubs_info: Nurse_ubsUpdate, id: int, session: Session)
 
     return updated_nurse_ubs
 
+
 def delete_nurse_ubs_db(id: int, session: Session):
     nurse_ubs = (
         session.execute(
@@ -185,5 +194,3 @@ def delete_nurse_ubs_db(id: int, session: Session):
     session.commit()
 
     return dict(nurse_ubs)
-
-

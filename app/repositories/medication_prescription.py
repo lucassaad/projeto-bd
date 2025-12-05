@@ -1,9 +1,16 @@
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from app.schemas.medication_prescription import Medication_preIn, Medication_preUpdate, Medication_preOut
+from sqlalchemy.orm import Session
 
-def create_medication_prescription(medication_prescription: Medication_preIn, session: Session):
+from app.schemas.medication_prescription import (
+    Medication_preIn,
+    Medication_preUpdate,
+)
+
+
+def create_medication_prescription(
+    medication_prescription: Medication_preIn, session: Session
+):
 
     existing_medication_prescription = (
         session.execute(
@@ -15,7 +22,7 @@ def create_medication_prescription(medication_prescription: Medication_preIn, se
         """),
             {
                 'medication_code': medication_prescription.medication_code,
-                'prescription_id': medication_prescription.prescription_id
+                'prescription_id': medication_prescription.prescription_id,
             },
         )
         .mappings()
@@ -36,7 +43,7 @@ def create_medication_prescription(medication_prescription: Medication_preIn, se
         )
 
         session.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         session.rollback()
         return None
 
@@ -50,12 +57,15 @@ def create_medication_prescription(medication_prescription: Medication_preIn, se
         """),
             {
                 'medication_code': medication_prescription.medication_code,
-                'prescription_id': medication_prescription.prescription_id
+                'prescription_id': medication_prescription.prescription_id,
             },
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
 
     return db_medication_prescription
+
 
 def select_medication_prescription(medication_code: str, session: Session):
     medication_prescription = (
@@ -65,11 +75,14 @@ def select_medication_prescription(medication_code: str, session: Session):
             WHERE medication_code = :medication_code
         """),
             {'medication_code': medication_code},
-        ).mappings().first()
+        )
+        .mappings()
+        .first()
     )
     if medication_prescription is None:
-        return None 
+        return None
     return medication_prescription
+
 
 def select_all_medication_prescriptions(session: Session):
     medication_prescriptions = (
@@ -77,12 +90,19 @@ def select_all_medication_prescriptions(session: Session):
             text("""
             SELECT * FROM "medication_prescription"
         """),
-        ).mappings().all()
+        )
+        .mappings()
+        .all()
     )
 
     return medication_prescriptions
 
-def update_medication_prescription(medication_code: str, medication_prescription_info: Medication_preUpdate, session: Session):
+
+def update_medication_prescription(
+    medication_code: str,
+    medication_prescription_info: Medication_preUpdate,
+    session: Session,
+):
 
     medication_prescription = (
         session.execute(
@@ -105,7 +125,10 @@ def update_medication_prescription(medication_code: str, medication_prescription
                 prescription_id = :prescription_id
             WHERE medication_code = :medication_code
         """),
-        {**medication_prescription_info.model_dump(), 'medication_code': medication_code},
+        {
+            **medication_prescription_info.model_dump(),
+            'medication_code': medication_code,
+        },
     )
 
     session.commit()
@@ -123,6 +146,7 @@ def update_medication_prescription(medication_code: str, medication_prescription
     )
 
     return updated_medication_prescription
+
 
 def delete_medication_prescription_db(medication_code: str, session: Session):
 

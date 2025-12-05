@@ -1,7 +1,8 @@
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import DBAPIError
 from fastapi import HTTPException
+from sqlalchemy import text
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.orm import Session
+
 from app.schemas.appointment import AppointmentIn
 
 
@@ -11,10 +12,10 @@ def create_appointment(appointment_in: AppointmentIn, session: Session):
 
     # Montando os parâmetros esperados pela procedure
     params = {
-        "doctor_cpf": appointment_in.doctor_cpf,
-        "patient_cpf": appointment_in.patient_cpf,
-        "ubs_cnes": appointment_in.ubs_cnes,
-        "p_datetime": p_datetime,   # use o nome do campo que está no schema
+        'doctor_cpf': appointment_in.doctor_cpf,
+        'patient_cpf': appointment_in.patient_cpf,
+        'ubs_cnes': appointment_in.ubs_cnes,
+        'p_datetime': p_datetime,  # use o nome do campo que está no schema
     }
 
     try:
@@ -28,7 +29,7 @@ def create_appointment(appointment_in: AppointmentIn, session: Session):
                     :p_datetime
                 );
             """),
-            params
+            params,
         )
 
         # Confirma a transação
@@ -41,13 +42,11 @@ def create_appointment(appointment_in: AppointmentIn, session: Session):
         raise HTTPException(status_code=400, detail=error_msg)
 
     return {
-    "doctor_cpf": appointment_in.doctor_cpf,
-    "patient_cpf": appointment_in.patient_cpf,
-    "ubs_cnes": appointment_in.ubs_cnes,
-    "date": appointment_in.date,
-
-}
-
+        'doctor_cpf': appointment_in.doctor_cpf,
+        'patient_cpf': appointment_in.patient_cpf,
+        'ubs_cnes': appointment_in.ubs_cnes,
+        'date': appointment_in.date,
+    }
 
 
 def select_appointment_cpf_patient(cpf: str, session: Session):
@@ -57,7 +56,7 @@ def select_appointment_cpf_patient(cpf: str, session: Session):
                 SELECT * FROM "appointment"
                 WHERE patient_cpf = :cpf
             """),
-            {"cpf": cpf}
+            {'cpf': cpf},
         )
         .mappings()
         .all()
@@ -68,16 +67,17 @@ def select_appointment_cpf_patient(cpf: str, session: Session):
     appointments = []
     for row in rows:
         appointments.append({
-            "doctor_cpf": row["doctor_cpf"],
-            "patient_cpf": row["patient_cpf"],
-            "ubs_cnes": row["ubs_cnes"],
-            "date": row["appointment_datetime"],  # renomeando
-            "id": row["id"],
-            "message": "Appointment found."
+            'doctor_cpf': row['doctor_cpf'],
+            'patient_cpf': row['patient_cpf'],
+            'ubs_cnes': row['ubs_cnes'],
+            'date': row['appointment_datetime'],  # renomeando
+            'id': row['id'],
+            'message': 'Appointment found.',
         })
 
     # Converte os campos para o schema correto
     return appointments
+
 
 def select_appointment_cpf_doctor(cpf: str, session: Session):
     user = (
@@ -98,16 +98,17 @@ def select_appointment_cpf_doctor(cpf: str, session: Session):
     appointments = []
     for row in user:
         appointments.append({
-            "doctor_cpf": row["doctor_cpf"],
-            "patient_cpf": row["patient_cpf"],
-            "ubs_cnes": row["ubs_cnes"],
-            "date": row["appointment_datetime"],
-            "id": row["id"],
-            "message": "Appointment found."
+            'doctor_cpf': row['doctor_cpf'],
+            'patient_cpf': row['patient_cpf'],
+            'ubs_cnes': row['ubs_cnes'],
+            'date': row['appointment_datetime'],
+            'id': row['id'],
+            'message': 'Appointment found.',
         })
 
     # Converte os campos para o schema correto
     return appointments
+
 
 def select_appointment_ubs_cnes(cnes: str, session: Session):
     user = (
@@ -128,16 +129,17 @@ def select_appointment_ubs_cnes(cnes: str, session: Session):
     appointments = []
     for row in user:
         appointments.append({
-            "doctor_cpf": row["doctor_cpf"],
-            "patient_cpf": row["patient_cpf"],
-            "ubs_cnes": row["ubs_cnes"],
-            "date": row["appointment_datetime"],  # renomeando
-            "id": row["id"],
-            "message": "Appointment found."
+            'doctor_cpf': row['doctor_cpf'],
+            'patient_cpf': row['patient_cpf'],
+            'ubs_cnes': row['ubs_cnes'],
+            'date': row['appointment_datetime'],  # renomeando
+            'id': row['id'],
+            'message': 'Appointment found.',
         })
 
     # Converte os campos para o schema correto
     return appointments
+
 
 def select_appointment_datetime(appointment_datetime: str, session: Session):
     user = (
@@ -158,16 +160,17 @@ def select_appointment_datetime(appointment_datetime: str, session: Session):
     appointments = []
     for row in user:
         appointments.append({
-            "doctor_cpf": row["doctor_cpf"],
-            "patient_cpf": row["patient_cpf"],
-            "ubs_cnes": row["ubs_cnes"],
-            "date": row["appointment_datetime"],  # renomeando
-            "id": row["id"],
-            "message": "Appointment found."
+            'doctor_cpf': row['doctor_cpf'],
+            'patient_cpf': row['patient_cpf'],
+            'ubs_cnes': row['ubs_cnes'],
+            'date': row['appointment_datetime'],  # renomeando
+            'id': row['id'],
+            'message': 'Appointment found.',
         })
 
     # Converte os campos para o schema correto
     return appointments
+
 
 def select_appointment_id(id: int, session: Session):
     user = (
@@ -186,12 +189,12 @@ def select_appointment_id(id: int, session: Session):
         return None
 
     return {
-        "doctor_cpf": user["doctor_cpf"],
-        "patient_cpf": user["patient_cpf"],
-        "ubs_cnes": user["ubs_cnes"],
-        "date": user["appointment_datetime"],
-        "id": user["id"],
-        "message": "Appointment deleted successfully"
+        'doctor_cpf': user['doctor_cpf'],
+        'patient_cpf': user['patient_cpf'],
+        'ubs_cnes': user['ubs_cnes'],
+        'date': user['appointment_datetime'],
+        'id': user['id'],
+        'message': 'Appointment deleted successfully',
     }
 
 
@@ -209,18 +212,21 @@ def select_all_appointments(session: Session):
     appointments = []
     for row in result:
         appointments.append({
-            "doctor_cpf": row["doctor_cpf"],
-            "patient_cpf": row["patient_cpf"],
-            "ubs_cnes": row["ubs_cnes"],
-            "date": row["appointment_datetime"],  # renomeando
-            "id": row["id"],
-            "message": "Appointment found."
+            'doctor_cpf': row['doctor_cpf'],
+            'patient_cpf': row['patient_cpf'],
+            'ubs_cnes': row['ubs_cnes'],
+            'date': row['appointment_datetime'],  # renomeando
+            'id': row['id'],
+            'message': 'Appointment found.',
         })
 
     # Converte os campos para o schema correto
     return appointments
 
-def update_appointment(appointment_info: AppointmentIn, id: int, session: Session):
+
+def update_appointment(
+    appointment_info: AppointmentIn, id: int, session: Session
+):
 
     user = (
         session.execute(
@@ -295,11 +301,10 @@ def delete_appointment_db(id: int, session: Session):
     session.commit()
 
     return {
-        "doctor_cpf": user["doctor_cpf"],
-        "patient_cpf": user["patient_cpf"],
-        "ubs_cnes": user["ubs_cnes"],
-        "date": user["appointment_datetime"],   # renomeado
-        "id": user["id"],
-        "message": "Appointment deleted successfully"
+        'doctor_cpf': user['doctor_cpf'],
+        'patient_cpf': user['patient_cpf'],
+        'ubs_cnes': user['ubs_cnes'],
+        'date': user['appointment_datetime'],  # renomeado
+        'id': user['id'],
+        'message': 'Appointment deleted successfully',
     }
-
